@@ -21,7 +21,7 @@ html, body, #app {
 
 #app {
   display: grid;
-  grid-template-columns: 292px 1fr 292px;
+  grid-template-columns: 320px 1fr;
 }
 
 .panel {
@@ -33,9 +33,16 @@ html, body, #app {
   border-right: 1px solid var(--line);
 }
 
-.panel-right {
-  border-right: 0;
-  border-left: 1px solid var(--line);
+.concept-tabs {
+  margin: 10px 0 14px;
+}
+
+.concept-tabs button {
+  flex: 1;
+  justify-content: center;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .brand .eyebrow {
@@ -314,10 +321,10 @@ html, body, #app {
 }
 
 @media (max-width: 1180px) {
-  #app { grid-template-columns: 252px 1fr 252px; }
+  #app { grid-template-columns: 280px 1fr; }
 }
 
 @media (max-width: 860px) {
-  #app { grid-template-columns: 1fr; grid-template-rows: minmax(280px, 38vh) 1fr 1fr; }
-  .panel, .panel-right { border-right: 0; border-left: 0; border-bottom: 1px solid var(--line); }
+  #app { grid-template-columns: 1fr; grid-template-rows: minmax(280px, 42vh) 1fr; }
+  .panel { border-right: 0; border-bottom: 1px solid var(--line); }
 }

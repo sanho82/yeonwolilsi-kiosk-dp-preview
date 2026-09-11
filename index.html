@@ -7,15 +7,20 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260911w" />
+  <link rel="stylesheet" href="styles.css?v=20260911aa" />
 </head>
 <body>
   <div id="app">
-    <aside class="panel" data-unit="solo">
+    <aside class="panel" id="editorPanel">
       <header class="brand">
         <p class="eyebrow">Yeonwolilsi · DP 프리뷰</p>
-        <h1>컨셉1. 1인강조</h1>
-        <p class="lede">이 칸의 도안은 왼쪽 기기에 반영됩니다.</p>
+        <div class="chip-row concept-tabs" id="conceptTabs">
+          <button type="button" data-unit="c1" class="is-on">컨셉1</button>
+          <button type="button" data-unit="c2">컨셉2</button>
+          <button type="button" data-unit="c3">컨셉3</button>
+        </div>
+        <h1 id="conceptTitle">컨셉1. 1인강조</h1>
+        <p class="lede" id="conceptLede">왼쪽 기기입니다. 3D에서 기기를 눌러도 이 칸이 바뀝니다.</p>
       </header>
 
       <section class="block">
@@ -119,7 +124,7 @@
 
       <section class="block">
         <div class="block-title">X 배너</div>
-        <p class="hint">왼쪽 기기 왼쪽에 세웁니다. 도안 비율 <b>2,835 × 8,505 px</b> · 실물 약 600 × 1,800 mm. 넣은 그림은 잘리지 않고 그대로 들어갑니다.</p>
+        <p class="hint">선택한 기기 왼쪽에 세웁니다. 도안 비율 <b>2,835 × 8,505 px</b> 유지 · 실물 약 547 × 1,640 mm. 높이는 상단 POP을 뺀 기기 높이와 같습니다.</p>
         <div class="faces side-pop-faces">
           <label class="face-slot xbanner" data-face="xbanner">
             <input type="file" accept="image/*" hidden />
@@ -130,6 +135,7 @@
           <div class="size-card">
             도안 사이즈<br/>
             <b>2,835 × 8,505 px</b><br/>
+            실물 약 547 × 1,640 mm<br/>
             기기 왼쪽 바깥에 배치
           </div>
         </div>
@@ -168,138 +174,10 @@
       </div>
       <div class="stage-label" id="stageLabel">3/4 뷰 · 컨셉 비교</div>
     </main>
-
-    <aside class="panel panel-right" data-unit="duo">
-      <header class="brand">
-        <p class="eyebrow">Yeonwolilsi · DP 프리뷰</p>
-        <h1>컨셉2. 2인강조 <span>최애궁합 포괄</span></h1>
-        <p class="lede">이 칸의 도안은 오른쪽 기기에 반영됩니다.</p>
-      </header>
-
-      <section class="block">
-        <div class="block-title">상단 POP 4면</div>
-        <p class="hint">앞·뒤는 <b>1,024 × 682 px</b> 비율입니다.</p>
-        <div class="faces pop-faces">
-          <label class="face-slot" data-face="front">
-            <input type="file" accept="image/*" hidden />
-            <span class="face-tag">앞</span>
-            <canvas></canvas>
-            <span class="face-meta">앞면</span>
-          </label>
-          <label class="face-slot" data-face="back">
-            <input type="file" accept="image/*" hidden />
-            <span class="face-tag">뒤</span>
-            <canvas></canvas>
-            <span class="face-meta">후면</span>
-          </label>
-          <label class="face-slot" data-face="left">
-            <input type="file" accept="image/*" hidden />
-            <span class="face-tag">좌</span>
-            <canvas></canvas>
-            <span class="face-meta">좌측</span>
-          </label>
-          <label class="face-slot" data-face="right">
-            <input type="file" accept="image/*" hidden />
-            <span class="face-tag">우</span>
-            <canvas></canvas>
-            <span class="face-meta">우측</span>
-          </label>
-        </div>
-        <div class="btn-row">
-          <button type="button" class="ghost copy-front">앞면 → 4면 복제</button>
-          <button type="button" class="ghost reset-pop">기본 도안</button>
-        </div>
-      </section>
-
-      <section class="block">
-        <div class="block-title">좌측 디스플레이 POP</div>
-        <p class="hint">도안 <b>613 × 1,024 px</b> · 실물 약 225 × 376 mm</p>
-        <div class="faces side-pop-faces">
-          <label class="face-slot portrait" data-face="sideLeft">
-            <input type="file" accept="image/*" hidden />
-            <span class="face-tag">좌</span>
-            <canvas></canvas>
-            <span class="face-meta">K-FORTUNE</span>
-          </label>
-          <div class="size-card">
-            바깥으로 약 150 mm 나옴<br/>
-            오른쪽은 포토카드·인화지 전시
-          </div>
-        </div>
-        <div class="btn-row">
-          <button type="button" class="ghost reset-side">기본 도안</button>
-        </div>
-      </section>
-
-      <section class="block">
-        <div class="block-title">측면 가로 포스터</div>
-        <p class="hint">기기 좌·우측면에 붙입니다. 도안 <b>1,152 × 864 px</b> · 실물 약 380 × 500 mm. 기기 깊이보다 조금 작아 랩핑 여백이 보입니다.</p>
-        <div class="faces">
-          <label class="face-slot" data-face="posterLeft">
-            <input type="file" accept="image/*" hidden />
-            <span class="face-tag">좌</span>
-            <canvas></canvas>
-            <span class="face-meta">좌측면</span>
-          </label>
-          <label class="face-slot" data-face="posterRight">
-            <input type="file" accept="image/*" hidden />
-            <span class="face-tag">우</span>
-            <canvas></canvas>
-            <span class="face-meta">우측면</span>
-          </label>
-        </div>
-        <div class="btn-row">
-          <button type="button" class="ghost reset-posters">기본 도안</button>
-        </div>
-      </section>
-
-      <section class="block">
-        <div class="block-title">좌측 문구 POP</div>
-        <p class="hint">왼쪽 세로 POP 위·아래 가로 배너입니다.</p>
-        <div class="faces quote-pop-faces">
-          <label class="face-slot quote" data-face="quote0">
-            <input type="file" accept="image/*" hidden />
-            <span class="face-tag">위</span>
-            <canvas></canvas>
-            <span class="face-meta">포토카드</span>
-          </label>
-          <label class="face-slot quote" data-face="quote1">
-            <input type="file" accept="image/*" hidden />
-            <span class="face-tag">아래</span>
-            <canvas></canvas>
-            <span class="face-meta">HOW TO</span>
-          </label>
-        </div>
-        <div class="btn-row">
-          <button type="button" class="ghost reset-quotes">기본 문구</button>
-        </div>
-      </section>
-
-      <section class="block">
-        <div class="block-title">X 배너</div>
-        <p class="hint">오른쪽 기기 오른쪽에 세웁니다. 도안 비율 <b>2,835 × 8,505 px</b> · 실물 약 600 × 1,800 mm. 넣은 그림은 잘리지 않고 그대로 들어갑니다.</p>
-        <div class="faces side-pop-faces">
-          <label class="face-slot xbanner" data-face="xbanner">
-            <input type="file" accept="image/*" hidden />
-            <span class="face-tag">X</span>
-            <canvas></canvas>
-            <span class="face-meta">X 배너</span>
-          </label>
-          <div class="size-card">
-            도안 사이즈<br/>
-            <b>2,835 × 8,505 px</b><br/>
-            기기 오른쪽 바깥에 배치
-          </div>
-        </div>
-        <div class="btn-row">
-          <button type="button" class="ghost reset-xbanner">기본 도안</button>
-        </div>
-      </section>
-    </aside>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="app.js?v=20260911w"></script>
+  <script src="app.js?v=20260911aa"></script>
 </body>
 </html>

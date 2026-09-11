@@ -1,5 +1,5 @@
 (() => {
-  const ASSET_V = "20260911w";
+  const ASSET_V = "20260911aa";
   const KIOSK = {
     w: 62,
     d: 48,
@@ -29,8 +29,8 @@
   const X_BANNER = {
     pxW: 2835,
     pxH: 8505,
-    w: 60,
-    h: 180,
+    h: KIOSK.baseH + KIOSK.h,
+    w: ((KIOSK.baseH + KIOSK.h) * 2835) / 8505,
   };
   const QUOTE_POPS = [
     {
@@ -38,10 +38,10 @@
       place: "top",
       w: 28,
       h: 8.2,
-      lines: ["내 사주 포토카드 한 장,", "주머니에 저장"],
+      lines: ["주머니 자리 있죠?", "행운 한 장 넣어드립니다"],
       bg: "#fff6e8",
       ink: "#1a120c",
-      accent: "#c45b5b",
+      accent: "#c4a574",
     },
     {
       key: "quote1",
@@ -55,25 +55,49 @@
       accent: "#f4b6c8",
     },
   ];
+  const CONCEPTS = [
+    {
+      id: "c1",
+      title: "컨셉1. 1인강조",
+      sub: "",
+      floor: "컨셉1. 1인강조",
+      lede: "왼쪽 기기입니다. 3D에서 기기를 눌러도 이 칸이 바뀝니다.",
+    },
+    {
+      id: "c2",
+      title: "컨셉2. 2인강조",
+      sub: "최애궁합 포괄",
+      floor: "컨셉2. 2인강조",
+      lede: "가운데 기기입니다. 3D에서 기기를 눌러도 이 칸이 바뀝니다.",
+    },
+    {
+      id: "c3",
+      title: "컨셉3",
+      sub: "",
+      floor: "컨셉3",
+      lede: "오른쪽 기기입니다. 3D에서 기기를 눌러도 이 칸이 바뀝니다.",
+    },
+  ];
   const POP_ASSETS = {
-    solo: {
+    c1: {
       front: "assets/pop-front.png",
       back: "assets/pop-back.png",
       left: "assets/pop-left.png",
       right: "assets/pop-right.png",
     },
-    duo: {
+    c2: {
       front: "assets/pop-duo.png",
       back: "assets/pop-duo.png",
       left: "assets/pop-duo.png",
       right: "assets/pop-duo.png",
     },
   };
-  const UNIT_X = { solo: -78, duo: 78 };
+  const UNIT_X = { c1: -176, c2: 0, c3: 176 };
 
   const state = {
     view: "hero",
     autoRotate: false,
+    selected: "c1",
   };
 
   const viewport = document.getElementById("viewport");
@@ -94,7 +118,7 @@
   viewport.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x141311, 1800, 3800);
+  scene.fog = new THREE.Fog(0x141311, 2200, 4600);
 
   const orbitCam = new THREE.PerspectiveCamera(36, 1, 1, 6000);
 
@@ -103,18 +127,18 @@
   controls.dampingFactor = 0.06;
   controls.enableZoom = true;
   controls.zoomSpeed = 1.15;
-  controls.minDistance = 220;
-  controls.maxDistance = 2400;
+  controls.minDistance = 260;
+  controls.maxDistance = 2800;
   controls.minPolarAngle = 0;
   controls.maxPolarAngle = Math.PI;
   controls.target.set(0, 98, 0);
 
   const views = {
-    hero: { pos: [520, 250, 980], target: [0, 98, 0], label: "3/4 뷰 · 컨셉 비교" },
-    front: { pos: [0, 230, 1080], target: [0, 98, 0], label: "정면 · 컨셉 비교" },
-    left: { pos: [-920, 240, 560], target: [0, 98, 0], label: "좌측 · 컨셉 비교" },
-    right: { pos: [920, 240, 560], target: [0, 98, 0], label: "우측 · 컨셉 비교" },
-    back: { pos: [0, 250, -1080], target: [0, 98, 0], label: "후면 · 컨셉 비교" },
+    hero: { pos: [720, 280, 1280], target: [0, 98, 0], label: "3/4 뷰 · 컨셉 비교" },
+    front: { pos: [0, 250, 1480], target: [0, 98, 0], label: "정면 · 컨셉 비교" },
+    left: { pos: [-1180, 260, 720], target: [0, 98, 0], label: "좌측 · 컨셉 비교" },
+    right: { pos: [1180, 260, 720], target: [0, 98, 0], label: "우측 · 컨셉 비교" },
+    back: { pos: [0, 270, -1480], target: [0, 98, 0], label: "후면 · 컨셉 비교" },
   };
 
   function mulberry32(a) {
@@ -363,17 +387,21 @@
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.font = `800 ${Math.round(h * 0.18)}px "Noto Sans KR", sans-serif`;
-    ctx.fillText("내 사주", w * 0.62, h * 0.38);
-    ctx.fillText("한 장에", w * 0.62, h * 0.56);
+    ctx.fillText("언제 잘 풀릴지", w * 0.62, h * 0.38);
+    ctx.fillText("궁금하다면", w * 0.62, h * 0.56);
     ctx.font = `700 ${Math.round(h * 0.07)}px "Noto Sans KR", sans-serif`;
     ctx.fillText("사주 관상 스튜디오", w / 2, h * 0.8);
 
     ctx.strokeStyle = "#1b4fd8";
-    ctx.lineWidth = 8;
-    roundRectPath(ctx, w * 0.08, h * 0.28, w * 0.22, h * 0.38, 18);
-    ctx.stroke();
+    ctx.lineWidth = 12;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
     ctx.beginPath();
-    ctx.arc(w * 0.19, h * 0.44, 22, 0, Math.PI * 2);
+    ctx.moveTo(w * 0.26, h * 0.36);
+    ctx.lineTo(w * 0.14, h * 0.47);
+    ctx.lineTo(w * 0.26, h * 0.58);
+    ctx.moveTo(w * 0.14, h * 0.47);
+    ctx.lineTo(w * 0.30, h * 0.47);
     ctx.stroke();
     return c;
   }
@@ -566,8 +594,8 @@
   key.position.set(120, 240, 140);
   key.castShadow = true;
   key.shadow.mapSize.set(2048, 2048);
-  key.shadow.camera.left = -320;
-  key.shadow.camera.right = 320;
+  key.shadow.camera.left = -520;
+  key.shadow.camera.right = 520;
   key.shadow.camera.top = 240;
   key.shadow.camera.bottom = -60;
   key.shadow.camera.near = 10;
@@ -581,7 +609,7 @@
   scene.add(rim);
 
   const ground = new THREE.Mesh(
-    new THREE.CircleGeometry(860, 64),
+    new THREE.CircleGeometry(1100, 64),
     new THREE.ShadowMaterial({ opacity: 0.32 })
   );
   ground.rotation.x = -Math.PI / 2;
@@ -601,26 +629,43 @@
       unit.mats[key].map = tex;
       unit.mats[key].needsUpdate = true;
     }
-    const slot = unit.panel.querySelector(`.face-slot[data-face="${key}"] canvas`);
+    if (unit.id !== state.selected) return;
+    const slot = editorPanel.querySelector(`.face-slot[data-face="${key}"] canvas`);
     if (slot) fitPreview(slot, canvas);
   }
 
-  function createUnit(id, label) {
+  function createUnit(concept) {
     const group = new THREE.Group();
-    group.position.x = UNIT_X[id];
+    group.position.x = UNIT_X[concept.id];
     root.add(group);
     const bodyGroup = new THREE.Group();
     const popGroup = new THREE.Group();
     group.add(bodyGroup);
     group.add(popGroup);
-    group.add(makeFloorLabel(label));
+    const floorLabel = makeFloorLabel(concept.floor);
+    group.add(floorLabel);
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(28, 32, 48),
+      new THREE.MeshBasicMaterial({
+        color: 0xc4a574,
+        transparent: true,
+        opacity: 0,
+        side: THREE.DoubleSide,
+      })
+    );
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.y = 0.2;
+    group.add(ring);
     return {
-      id,
-      label,
-      panel: document.querySelector(`.panel[data-unit="${id}"]`),
+      id: concept.id,
+      concept,
+      label: concept.floor,
       group,
       bodyGroup,
       popGroup,
+      floorLabel,
+      ring,
+      bodyMesh: null,
       mats: {},
       texCache: {},
       maps: {},
@@ -630,7 +675,38 @@
     };
   }
 
-  const units = [createUnit("solo", "컨셉1. 1인강조"), createUnit("duo", "컨셉2. 2인강조")];
+  const editorPanel = document.getElementById("editorPanel");
+  const units = CONCEPTS.map((concept) => createUnit(concept));
+
+  function selectedUnit() {
+    return units.find((unit) => unit.id === state.selected) || units[0];
+  }
+
+  function refreshPanelPreviews(unit) {
+    editorPanel.querySelectorAll(".face-slot canvas").forEach((c) => {
+      fitPreview(c, unit.maps[c.parentElement.dataset.face]);
+    });
+  }
+
+  function setSelected(id) {
+    if (!units.some((unit) => unit.id === id)) return;
+    state.selected = id;
+    const unit = selectedUnit();
+    const concept = unit.concept;
+    const title = document.getElementById("conceptTitle");
+    title.textContent = concept.title;
+    if (concept.sub) {
+      title.innerHTML = `${concept.title} <span>${concept.sub}</span>`;
+    }
+    document.getElementById("conceptLede").textContent = concept.lede;
+    document.querySelectorAll("#conceptTabs button").forEach((btn) => {
+      btn.classList.toggle("is-on", btn.dataset.unit === id);
+    });
+    units.forEach((item) => {
+      item.ring.material.opacity = item.id === id ? 0.9 : 0;
+    });
+    refreshPanelPreviews(unit);
+  }
 
   function markFace(mesh, unit, face) {
     mesh.userData.unit = unit.id;
@@ -669,7 +745,9 @@
     body.position.y = baseH + h / 2;
     body.castShadow = true;
     body.receiveShadow = true;
+    body.userData.unit = unit.id;
     unit.bodyGroup.add(body);
+    unit.bodyMesh = body;
 
     const base = box(baseW, baseH, baseD, cream);
     base.position.y = baseH / 2;
@@ -827,9 +905,9 @@
 
     const bw = X_BANNER.w;
     const bh = X_BANNER.h;
-    const bannerSide = unit.id === "solo" ? -1 : 1;
+    const bannerSide = -1;
     const bannerX = bannerSide < 0 ? popLeft - 12 - bw / 2 : w / 2 + 12 + bw / 2;
-    const bannerLift = 15;
+    const bannerLift = 0;
     const bannerY = bannerLift + bh / 2;
     const bannerZ = 4;
     const metal = new THREE.MeshStandardMaterial({
@@ -1056,7 +1134,7 @@
 
   function allPickMeshes() {
     return units.flatMap((unit) =>
-      [...Object.values(unit.popMeshes), ...Object.values(unit.sideMeshes)].filter(Boolean)
+      [...Object.values(unit.popMeshes), ...Object.values(unit.sideMeshes), unit.bodyMesh].filter(Boolean)
     );
   }
 
@@ -1122,8 +1200,8 @@
     renderer.render(scene, orbitCam);
   }
 
-  function bindSlots(unit) {
-    unit.panel.querySelectorAll(".face-slot").forEach((slot) => {
+  function bindSlots() {
+    editorPanel.querySelectorAll(".face-slot").forEach((slot) => {
       const input = slot.querySelector("input");
       const face = slot.dataset.face;
       const onFile = (file) => {
@@ -1131,7 +1209,7 @@
         const img = new Image();
         img.onload = () => {
           URL.revokeObjectURL(img.src);
-          applyPopImage(unit, face, img);
+          applyPopImage(selectedUnit(), face, img);
         };
         img.src = URL.createObjectURL(file);
       };
@@ -1154,17 +1232,18 @@
     });
   }
 
-  function bindUnitUi(unit) {
-    unit.panel.querySelector(".copy-front").addEventListener("click", () => {
+  function bindEditor() {
+    editorPanel.querySelector(".copy-front").addEventListener("click", () => {
+      const unit = selectedUnit();
       if (!unit.maps.front) return;
       ["back", "left", "right"].forEach((k) => setMap(unit, k, unit.maps.front));
     });
-    unit.panel.querySelector(".reset-pop").addEventListener("click", () => applyDefaultPop(unit));
-    unit.panel.querySelector(".reset-side").addEventListener("click", () => applyDefaultSidePop(unit));
-    unit.panel.querySelector(".reset-posters").addEventListener("click", () => applyDefaultSidePosters(unit));
-    unit.panel.querySelector(".reset-quotes").addEventListener("click", () => applyDefaultQuotes(unit));
-    unit.panel.querySelector(".reset-xbanner").addEventListener("click", () => applyDefaultXBanner(unit));
-    bindSlots(unit);
+    editorPanel.querySelector(".reset-pop").addEventListener("click", () => applyDefaultPop(selectedUnit()));
+    editorPanel.querySelector(".reset-side").addEventListener("click", () => applyDefaultSidePop(selectedUnit()));
+    editorPanel.querySelector(".reset-posters").addEventListener("click", () => applyDefaultSidePosters(selectedUnit()));
+    editorPanel.querySelector(".reset-quotes").addEventListener("click", () => applyDefaultQuotes(selectedUnit()));
+    editorPanel.querySelector(".reset-xbanner").addEventListener("click", () => applyDefaultXBanner(selectedUnit()));
+    bindSlots();
   }
 
   function bindUi() {
@@ -1183,7 +1262,9 @@
       if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
       if (e.key === "+" || e.key === "=") dollyBy(0.78);
       if (e.key === "-" || e.key === "_") dollyBy(1.28);
-      if (e.key === "0") setCameraView(state.view);
+      if (e.key === "1") setSelected("c1");
+      if (e.key === "2") setSelected("c2");
+      if (e.key === "3") setSelected("c3");
     });
     document.getElementById("captureBtn").addEventListener("click", () => {
       const a = document.createElement("a");
@@ -1192,7 +1273,10 @@
       a.click();
     });
 
-    units.forEach(bindUnitUi);
+    document.querySelectorAll("#conceptTabs button").forEach((btn) => {
+      btn.addEventListener("click", () => setSelected(btn.dataset.unit));
+    });
+    bindEditor();
 
     const ray = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
@@ -1210,13 +1294,13 @@
       pointer.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
       ray.setFromCamera(pointer, orbitCam);
       const hits = ray.intersectObjects(allPickMeshes());
-      if (hits[0] && hits[0].object.userData.face) {
-        const { unit: unitId, face } = hits[0].object.userData;
-        const slot = document.querySelector(
-          `.panel[data-unit="${unitId}"] .face-slot[data-face="${face}"] input`
-        );
-        if (slot) slot.click();
-      }
+      if (!hits[0] || !hits[0].object.userData.unit) return;
+      const { unit: unitId, face } = hits[0].object.userData;
+      const switched = state.selected !== unitId;
+      setSelected(unitId);
+      if (!face || switched) return;
+      const slot = editorPanel.querySelector(`.face-slot[data-face="${face}"] input`);
+      if (slot) slot.click();
     });
   }
 
@@ -1234,15 +1318,12 @@
       buildPop(unit);
     });
     await Promise.all(units.map((unit) => applyDefaultPop(unit)));
+    setSelected("c1");
     setCameraView("hero");
     resize();
     window.addEventListener("resize", () => {
       resize();
-      units.forEach((unit) => {
-        unit.panel.querySelectorAll(".face-slot canvas").forEach((c) => {
-          fitPreview(c, unit.maps[c.parentElement.dataset.face]);
-        });
-      });
+      refreshPanelPreviews(selectedUnit());
     });
     tick();
   }
