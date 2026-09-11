@@ -1,5 +1,5 @@
 (() => {
-  const ASSET_V = "20260911aa";
+  const ASSET_V = "20260911ab";
   const KIOSK = {
     w: 62,
     d: 48,
@@ -78,20 +78,17 @@
       lede: "오른쪽 기기입니다. 3D에서 기기를 눌러도 이 칸이 바뀝니다.",
     },
   ];
-  const POP_ASSETS = {
-    c1: {
-      front: "assets/pop-front.png",
-      back: "assets/pop-back.png",
-      left: "assets/pop-left.png",
-      right: "assets/pop-right.png",
-    },
-    c2: {
-      front: "assets/pop-duo.png",
-      back: "assets/pop-duo.png",
-      left: "assets/pop-duo.png",
-      right: "assets/pop-duo.png",
-    },
-  };
+  const POP_ASSETS = Object.fromEntries(
+    ["c1", "c2", "c3"].map((id) => [
+      id,
+      {
+        front: `assets/${id}-front.png`,
+        back: `assets/${id}-back.png`,
+        left: `assets/${id}-left.png`,
+        right: `assets/${id}-right.png`,
+      },
+    ])
+  );
   const UNIT_X = { c1: -176, c2: 0, c3: 176 };
 
   const state = {
@@ -1050,42 +1047,30 @@
     setMap(unit, "bodyRight", makeBodyTexture("right"));
   }
 
-  function applyDefaultSidePop(unit) {
+  function loadUnitFace(unit, face, fallback) {
     const img = new Image();
-    img.onload = () => applyPopImage(unit, "sideLeft", img);
-    img.onerror = () => setMap(unit, "sideLeft", defaultSidePopArt());
-    img.src = `${SIDE_POP.asset}?v=${ASSET_V}`;
+    img.onload = () => applyPopImage(unit, face, img);
+    img.onerror = fallback;
+    img.src = `assets/${unit.id}-${face}.png?v=${ASSET_V}`;
+  }
+
+  function applyDefaultSidePop(unit) {
+    loadUnitFace(unit, "sideLeft", () => setMap(unit, "sideLeft", defaultSidePopArt()));
   }
 
   function applyDefaultSidePosters(unit) {
-    const img = new Image();
-    img.onload = () => {
-      applyPopImage(unit, "posterLeft", img);
-      applyPopImage(unit, "posterRight", img);
-    };
-    img.onerror = () => {
-      const art = defaultSidePosterArt();
-      setMap(unit, "posterLeft", art);
-      setMap(unit, "posterRight", art);
-    };
-    img.src = `${SIDE_POSTER.asset}?v=${ASSET_V}`;
+    loadUnitFace(unit, "posterLeft", () => setMap(unit, "posterLeft", defaultSidePosterArt()));
+    loadUnitFace(unit, "posterRight", () => setMap(unit, "posterRight", defaultSidePosterArt()));
   }
 
   function applyDefaultQuotes(unit) {
     QUOTE_POPS.forEach((card) => {
-      if (card.asset) {
-        const img = new Image();
-        img.onload = () => applyPopImage(unit, card.key, img);
-        img.onerror = () => setMap(unit, card.key, defaultQuoteArt(card));
-        img.src = `${card.asset}?v=${ASSET_V}`;
-        return;
-      }
-      setMap(unit, card.key, defaultQuoteArt(card));
+      loadUnitFace(unit, card.key, () => setMap(unit, card.key, defaultQuoteArt(card)));
     });
   }
 
   function applyDefaultXBanner(unit) {
-    setMap(unit, "xbanner", defaultXBannerArt(unit.label));
+    loadUnitFace(unit, "xbanner", () => setMap(unit, "xbanner", defaultXBannerArt(unit.label)));
   }
 
   function targetSize(unit, face) {
