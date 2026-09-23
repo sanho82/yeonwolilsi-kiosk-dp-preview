@@ -24,6 +24,17 @@ html, body, #app {
   grid-template-columns: 320px 1fr;
 }
 
+body.solo-preview #app {
+  grid-template-columns: 1fr;
+}
+
+body.solo-preview .panel,
+body.solo-preview .stage-toolbar,
+body.solo-preview .zoom-bar,
+body.solo-preview .stage-label {
+  display: none;
+}
+
 .panel {
   overflow: auto;
   padding: 24px 18px 36px;
@@ -175,11 +186,11 @@ html, body, #app {
 }
 
 .pop-faces .face-slot canvas {
-  aspect-ratio: 1024 / 682;
+  aspect-ratio: 3 / 2;
 }
 
 .face-slot.portrait canvas {
-  aspect-ratio: 613 / 1024;
+  aspect-ratio: 146 / 500;
 }
 
 .face-slot.xbanner canvas {
@@ -191,11 +202,11 @@ html, body, #app {
 }
 
 .face-slot[data-face="quote0"] canvas {
-  aspect-ratio: 280 / 82;
+  aspect-ratio: 150 / 50;
 }
 
 .face-slot[data-face="quote1"] canvas {
-  aspect-ratio: 1024 / 374;
+  aspect-ratio: 150 / 50;
 }
 
 .face-slot[data-face="posterLeft"] canvas,

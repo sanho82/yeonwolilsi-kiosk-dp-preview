@@ -1,22 +1,33 @@
 (() => {
-  const ASSET_V = "20260911ab";
+  const ASSET_V = "20260922s";
+  // JIODI JDK Phk / YMDT320. 1 unit = 1 cm.
+  // Cabinet 610 × 1612 mm. Screen 744.4 mm sits under a short crown (handle + camera),
+  // matching the product photos — CAD's 430 mm header was visually too tall.
   const KIOSK = {
-    w: 62,
-    d: 48,
-    h: 158,
-    baseW: 70,
-    baseD: 56,
-    baseH: 6,
+    w: 61,
+    d: 65.17,
+    h: 157.2,
+    baseW: 63,
+    baseD: 67,
+    baseH: 4,
+    crown: 15,
+  };
+  const SCREEN = {
+    w: 41.87,
+    h: 74.44,
+    y: KIOSK.baseH + KIOSK.h - 15 - 74.44 / 2,
   };
   const TOP_POP = {
-    pxW: 1024,
-    pxH: 682,
+    pxW: 1200,
+    pxH: 800,
+    w: 60,
+    h: 40,
   };
   const SIDE_POP = {
-    pxW: 613,
-    pxH: 1024,
-    w: 22.5,
-    h: (22.5 * 1024) / 613,
+    pxW: 292,
+    pxH: 1000,
+    w: 14.6,
+    h: 50,
     asset: "assets/side-left.png",
   };
   const SIDE_POSTER = {
@@ -29,15 +40,16 @@
   const X_BANNER = {
     pxW: 2835,
     pxH: 8505,
-    h: KIOSK.baseH + KIOSK.h,
-    w: ((KIOSK.baseH + KIOSK.h) * 2835) / 8505,
+    w: 60,
+    h: 180,
   };
   const QUOTE_POPS = [
     {
       key: "quote0",
+      side: "left",
       place: "top",
-      w: 28,
-      h: 8.2,
+      w: 15,
+      h: 5,
       lines: ["주머니 자리 있죠?", "행운 한 장 넣어드립니다"],
       bg: "#fff6e8",
       ink: "#1a120c",
@@ -45,9 +57,10 @@
     },
     {
       key: "quote1",
-      place: "bottom",
-      w: 28,
-      h: (28 * 374) / 1024,
+      side: "right",
+      place: "top",
+      w: 15,
+      h: 5,
       asset: "assets/quote-howto.png",
       lines: ["2분만에 뽑는 내 운세굿즈"],
       bg: "#fff8f4",
@@ -60,14 +73,14 @@
       id: "c1",
       title: "컨셉1. 1인강조",
       sub: "",
-      floor: "컨셉1. 1인강조",
+      floor: "컨셉1",
       lede: "왼쪽 기기입니다. 3D에서 기기를 눌러도 이 칸이 바뀝니다.",
     },
     {
       id: "c2",
       title: "컨셉2. 2인강조",
       sub: "최애궁합 포괄",
-      floor: "컨셉2. 2인강조",
+      floor: "컨셉2",
       lede: "가운데 기기입니다. 3D에서 기기를 눌러도 이 칸이 바뀝니다.",
     },
     {
@@ -90,11 +103,13 @@
     ])
   );
   const UNIT_X = { c1: -176, c2: 0, c3: 176 };
+  const SOLO = new URLSearchParams(location.search);
+  const isSolo = SOLO.has("solo") || SOLO.has("preview");
 
   const state = {
     view: "hero",
     autoRotate: false,
-    selected: "c1",
+    selected: SOLO.get("solo") || SOLO.get("c") || "c1",
   };
 
   const viewport = document.getElementById("viewport");
@@ -124,19 +139,27 @@
   controls.dampingFactor = 0.06;
   controls.enableZoom = true;
   controls.zoomSpeed = 1.15;
-  controls.minDistance = 260;
-  controls.maxDistance = 2800;
+  controls.minDistance = isSolo ? 120 : 260;
+  controls.maxDistance = isSolo ? 900 : 2800;
   controls.minPolarAngle = 0;
   controls.maxPolarAngle = Math.PI;
   controls.target.set(0, 98, 0);
 
-  const views = {
-    hero: { pos: [720, 280, 1280], target: [0, 98, 0], label: "3/4 뷰 · 컨셉 비교" },
-    front: { pos: [0, 250, 1480], target: [0, 98, 0], label: "정면 · 컨셉 비교" },
-    left: { pos: [-1180, 260, 720], target: [0, 98, 0], label: "좌측 · 컨셉 비교" },
-    right: { pos: [1180, 260, 720], target: [0, 98, 0], label: "우측 · 컨셉 비교" },
-    back: { pos: [0, 270, -1480], target: [0, 98, 0], label: "후면 · 컨셉 비교" },
-  };
+  const views = isSolo
+    ? {
+        hero: { pos: [170, 130, 300], target: [-12, 90, 0], label: "3/4 뷰" },
+        front: { pos: [0, 110, 320], target: [0, 85, 0], label: "정면" },
+        left: { pos: [-280, 120, 160], target: [0, 85, 0], label: "좌측" },
+        right: { pos: [280, 120, 160], target: [0, 85, 0], label: "우측" },
+        back: { pos: [0, 130, -320], target: [0, 85, 0], label: "후면" },
+      }
+    : {
+        hero: { pos: [720, 280, 1280], target: [0, 98, 0], label: "3/4 뷰 · 컨셉 비교" },
+        front: { pos: [0, 250, 1480], target: [0, 98, 0], label: "정면 · 컨셉 비교" },
+        left: { pos: [-1180, 260, 720], target: [0, 98, 0], label: "좌측 · 컨셉 비교" },
+        right: { pos: [1180, 260, 720], target: [0, 98, 0], label: "우측 · 컨셉 비교" },
+        back: { pos: [0, 270, -1480], target: [0, 98, 0], label: "후면 · 컨셉 비교" },
+      };
 
   function mulberry32(a) {
     return () => {
@@ -220,13 +243,24 @@
     drawShards(ctx, w, h, seed, kind === "front" ? 70 : 110, kind === "front");
 
     if (kind === "front") {
-      ctx.fillStyle = "#f3eee6";
-      ctx.fillRect(w * 0.08, h * 0.62, w * 0.84, h * 0.16);
+      const screenV0 = (SCREEN.y - SCREEN.h / 2 - KIOSK.baseH) / KIOSK.h;
+      const screenV1 = (SCREEN.y + SCREEN.h / 2 - KIOSK.baseH) / KIOSK.h;
+      const yTop = h * (1 - screenV1);
+      const yBot = h * (1 - screenV0);
+      ctx.fillStyle = "#11110f";
+      ctx.fillRect(w * 0.12, yTop, w * 0.76, yBot - yTop);
+      const wordY = yBot + (h - yBot) * 0.28;
       ctx.fillStyle = "#1a1916";
-      ctx.font = '700 92px "Noto Serif KR", serif';
+      ctx.font = '700 88px "Noto Serif KR", serif';
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText("연월일시", w / 2, h * 0.7);
+      ctx.fillText("연월일시", w / 2, wordY);
+      ctx.fillStyle = "#11110f";
+      const holeW = w * 0.62;
+      const holeH = h * 0.028;
+      const holeY = h * 0.018;
+      roundRectPath(ctx, (w - holeW) / 2, holeY, holeW, holeH, holeH / 2);
+      ctx.fill();
     }
 
     if (kind === "left" || kind === "right") {
@@ -562,23 +596,32 @@
   }
 
   function makeFloorLabel(text) {
-    const c = makeCanvas(640, 160);
+    const w = 768;
+    const h = 200;
+    const c = makeCanvas(w, h);
     const ctx = c.getContext("2d");
-    ctx.clearRect(0, 0, 640, 160);
-    roundRectPath(ctx, 24, 28, 592, 104, 28);
-    ctx.fillStyle = "rgba(17, 17, 15, 0.78)";
+    ctx.clearRect(0, 0, w, h);
+    roundRectPath(ctx, 20, 36, w - 40, 128, 32);
+    ctx.fillStyle = "rgba(17, 17, 15, 0.88)";
     ctx.fill();
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "#c4a574";
+    ctx.stroke();
     ctx.fillStyle = "#e8d3ae";
-    ctx.font = '700 48px "Noto Sans KR", sans-serif';
+    ctx.font = '700 92px "Noto Sans KR", sans-serif';
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(text, 320, 82);
+    ctx.fillText(text, w / 2, h / 2 + 2);
     const mesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(46, 10),
-      new THREE.MeshBasicMaterial({ map: canvasTexture(c, true), transparent: true })
+      new THREE.PlaneGeometry(64, 16.8),
+      new THREE.MeshBasicMaterial({
+        map: canvasTexture(c, true),
+        transparent: true,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+      })
     );
-    mesh.rotation.x = -Math.PI / 2;
-    mesh.position.set(0, 0.18, 40);
+    mesh.position.set(0, KIOSK.baseH + KIOSK.h + TOP_POP.h + 10, 0);
     return mesh;
   }
 
@@ -668,7 +711,8 @@
       maps: {},
       popMeshes: {},
       sideMeshes: {},
-      pop: { w: 62, h: (62 * TOP_POP.pxH) / TOP_POP.pxW, d: 48 },
+      attach: {},
+      pop: { w: TOP_POP.w, h: TOP_POP.h, d: KIOSK.d },
     };
   }
 
@@ -750,10 +794,10 @@
     base.position.y = baseH / 2;
     unit.bodyGroup.add(base);
 
-    const screenW = 46;
-    const screenH = 82.5;
+    const screenW = SCREEN.w;
+    const screenH = SCREEN.h;
     const screenX = 0;
-    const screenY = baseH + h * 0.58;
+    const screenY = SCREEN.y;
     const sideW = SIDE_POP.w;
     const sideH = SIDE_POP.h;
     const gap = 0.8;
@@ -771,22 +815,38 @@
     const screenMat = screenTex
       ? new THREE.MeshBasicMaterial({ map: screenTex })
       : new THREE.MeshBasicMaterial({ color: 0xf3d7b0 });
-    const screen = new THREE.Mesh(new THREE.PlaneGeometry(screenW, screenH), screenMat);
-    screen.position.set(screenX, screenY, d / 2 + 0.35);
-    unit.bodyGroup.add(screen);
-
-    const bezel = new THREE.Mesh(
-      new THREE.PlaneGeometry(screenW + 2.2, screenH + 2.2),
-      new THREE.MeshStandardMaterial({ color: 0x0e0e0c, roughness: 0.28, emissive: 0x1a4a52, emissiveIntensity: 0.28 })
+    const bezelPad = 2.2;
+    const frame = new THREE.Mesh(
+      new THREE.PlaneGeometry(screenW + bezelPad * 2, screenH + bezelPad * 2),
+      new THREE.MeshStandardMaterial({ color: 0xf3eee6, roughness: 0.4 })
     );
-    bezel.position.set(screenX, screenY, d / 2 + 0.2);
+    frame.position.set(screenX, screenY, d / 2 + 0.18);
+    unit.bodyGroup.add(frame);
+    const bezel = new THREE.Mesh(
+      new THREE.PlaneGeometry(screenW + 0.9, screenH + 0.9),
+      new THREE.MeshStandardMaterial({ color: 0x0e0e0c, roughness: 0.28, emissive: 0x1a4a52, emissiveIntensity: 0.18 })
+    );
+    bezel.position.set(screenX, screenY, d / 2 + 0.22);
     unit.bodyGroup.add(bezel);
-    screen.renderOrder = 2;
-    bezel.renderOrder = 1;
+    const screen = new THREE.Mesh(new THREE.PlaneGeometry(screenW, screenH), screenMat);
+    screen.position.set(screenX, screenY, d / 2 + 0.28);
+    unit.bodyGroup.add(screen);
+    screen.renderOrder = 3;
+    bezel.renderOrder = 2;
+    frame.renderOrder = 1;
 
+    unit.attach = {};
+    const addAttach = (name) => {
+      const g = new THREE.Group();
+      g.name = name;
+      unit.bodyGroup.add(g);
+      unit.attach[name] = g;
+      return g;
+    };
+    const sideG = addAttach("sideLeft");
     const sideBoard = box(sideW, sideH, popDepth, ink);
     sideBoard.position.set(sideX, sideY, popZ);
-    unit.bodyGroup.add(sideBoard);
+    sideG.add(sideBoard);
     mats.sideLeft = new THREE.MeshBasicMaterial({
       map: unit.texCache.sideLeft || null,
       polygonOffset: true,
@@ -798,13 +858,14 @@
     sideFace.castShadow = false;
     markFace(sideFace, unit, "sideLeft");
     sideFace.renderOrder = 3;
-    unit.bodyGroup.add(sideFace);
+    sideG.add(sideFace);
     unit.sideMeshes.left = sideFace;
     if (unit.maps.sideLeft && unit.texCache.sideLeft) {
       mats.sideLeft.map = unit.texCache.sideLeft;
       mats.sideLeft.needsUpdate = true;
     }
 
+    const postersG = addAttach("posters");
     const posterW = SIDE_POSTER.w;
     const posterH = SIDE_POSTER.h;
     const posterThick = 0.8;
@@ -815,7 +876,7 @@
     ].forEach(([key, side]) => {
       const board = box(posterThick, posterH, posterW, ink);
       board.position.set(side * (w / 2 + posterThick / 2 + 0.02), posterY, 0);
-      unit.bodyGroup.add(board);
+      postersG.add(board);
       mats[key] = new THREE.MeshBasicMaterial({
         map: unit.texCache[key] || null,
         polygonOffset: true,
@@ -831,7 +892,7 @@
       posterFace.castShadow = false;
       markFace(posterFace, unit, key);
       posterFace.renderOrder = 3;
-      unit.bodyGroup.add(posterFace);
+      postersG.add(posterFace);
       unit.sideMeshes[key] = posterFace;
       if (unit.maps[key] && unit.texCache[key]) {
         mats[key].map = unit.texCache[key];
@@ -842,15 +903,14 @@
     const quoteGap = 0.7;
     const quoteZ = popZ + popDepth / 2 + 0.05;
     QUOTE_POPS.forEach((card, i) => {
+      const qg = addAttach(card.key);
       const qw = card.w;
       const qh = card.h;
-      const y =
-        card.place === "top"
-          ? sideY + sideH / 2 + quoteGap + qh / 2
-          : sideY - sideH / 2 - quoteGap - qh / 2;
+      const y = sideY + sideH / 2 + quoteGap + qh / 2;
+      const x = card.side === "right" ? -sideX : sideX;
       const board = box(qw, qh, 0.7, ink);
-      board.position.set(sideX, y, popZ + 0.05);
-      unit.bodyGroup.add(board);
+      board.position.set(x, y, popZ + 0.05);
+      qg.add(board);
       mats[card.key] = new THREE.MeshBasicMaterial({
         map: unit.texCache[card.key] || null,
         transparent: true,
@@ -860,11 +920,11 @@
         polygonOffsetUnits: -1,
       });
       const quoteFace = new THREE.Mesh(new THREE.PlaneGeometry(qw, qh), mats[card.key]);
-      quoteFace.position.set(sideX, y, quoteZ);
+      quoteFace.position.set(x, y, quoteZ);
       quoteFace.castShadow = false;
       markFace(quoteFace, unit, card.key);
       quoteFace.renderOrder = 4 + i;
-      unit.bodyGroup.add(quoteFace);
+      qg.add(quoteFace);
       unit.sideMeshes[card.key] = quoteFace;
       if (unit.maps[card.key] && unit.texCache[card.key]) {
         mats[card.key].map = unit.texCache[card.key];
@@ -872,34 +932,39 @@
       }
     });
 
-    const handle = box(38, 3.2, 10, ink, false);
-    handle.position.set(0, baseH + h - 4.2, d / 2 - 8);
-    unit.bodyGroup.add(handle);
-    const slot = box(28, 1.6, 8.5, new THREE.MeshStandardMaterial({ color: 0x050505 }));
-    slot.position.set(0, baseH + h - 4.2, d / 2 - 2.2);
-    unit.bodyGroup.add(slot);
+    const handleW = 38;
+    const handleHoleH = 3.8;
+    const handleY = baseH + h - 2.6 - handleHoleH / 2;
+    const holeMat = new THREE.MeshBasicMaterial({ color: 0x11110f });
+    [
+      d / 2 + 0.36,
+      -d / 2 - 0.36,
+    ].forEach((z, i) => {
+      const hole = new THREE.Mesh(new THREE.PlaneGeometry(handleW, handleHoleH), holeMat);
+      hole.position.set(0, handleY, z);
+      if (i === 1) hole.rotation.y = Math.PI;
+      unit.bodyGroup.add(hole);
+    });
 
     const cam = new THREE.Mesh(
-      new THREE.CircleGeometry(1.5, 24),
+      new THREE.CircleGeometry(1.1, 24),
       new THREE.MeshStandardMaterial({ color: 0x111, roughness: 0.2, metalness: 0.4 })
     );
-    cam.position.set(screenX, baseH + h - 10.5, d / 2 + 0.4);
+    cam.position.set(screenX, screenY + screenH / 2 + 2.4, d / 2 + 0.4);
     unit.bodyGroup.add(cam);
 
-    const pay = box(16, 9, 1.2, new THREE.MeshStandardMaterial({ color: 0xe8e4dc, roughness: 0.3 }));
-    pay.position.set(screenX + 8, baseH + 46, d / 2 + 0.7);
-    unit.bodyGroup.add(pay);
-
-    const well = box(28, 8, 6, ink);
-    well.position.set(0, baseH + 14, d / 2 - 1);
+    const slotY = baseH + 16.8;
+    const well = box(24, 7.2, 5.5, ink);
+    well.position.set(0, slotY, d / 2 - 1);
     unit.bodyGroup.add(well);
     const glow = new THREE.Mesh(
-      new THREE.PlaneGeometry(24, 5),
+      new THREE.PlaneGeometry(20.5, 4.6),
       new THREE.MeshBasicMaterial({ color: 0x9ad7ff })
     );
-    glow.position.set(0, baseH + 14, d / 2 + 0.21);
+    glow.position.set(0, slotY, d / 2 + 0.22);
     unit.bodyGroup.add(glow);
 
+    const xbG = addAttach("xbanner");
     const bw = X_BANNER.w;
     const bh = X_BANNER.h;
     const bannerSide = -1;
@@ -922,12 +987,12 @@
       [bannerX - footX, 0.5, bannerZ + footZ, bannerX + footX, 0.5, bannerZ - footZ],
       [bannerX + footX, 0.5, bannerZ + footZ, bannerX - footX, 0.5, bannerZ - footZ],
     ].forEach(([ax, ay, az, bx, by, bz], i) => {
-      unit.bodyGroup.add(pole(ax, ay, az, bx, by, bz, i < 4 ? 0.48 : 0.36, metal));
+      xbG.add(pole(ax, ay, az, bx, by, bz, i < 4 ? 0.48 : 0.36, metal));
     });
 
     const fabric = box(bw, bh, 0.4, ink);
     fabric.position.set(bannerX, bannerY, bannerZ);
-    unit.bodyGroup.add(fabric);
+    xbG.add(fabric);
     mats.xbanner = new THREE.MeshBasicMaterial({
       map: unit.texCache.xbanner || null,
       polygonOffset: true,
@@ -939,7 +1004,7 @@
     bannerFace.castShadow = false;
     markFace(bannerFace, unit, "xbanner");
     bannerFace.renderOrder = 3;
-    unit.bodyGroup.add(bannerFace);
+    xbG.add(bannerFace);
     unit.sideMeshes.xbanner = bannerFace;
     if (unit.maps.xbanner && unit.texCache.xbanner) {
       mats.xbanner.map = unit.texCache.xbanner;
@@ -961,7 +1026,7 @@
     ].forEach(([dx, dy]) => {
       const ring = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.18, 8, 16), grommetMat);
       ring.position.set(bannerX + dx, bannerY + dy, bannerZ + 0.32);
-      unit.bodyGroup.add(ring);
+      xbG.add(ring);
     });
 
     ["bodyFront", "bodyBack", "bodyLeft", "bodyRight"].forEach((key) => {
@@ -1097,24 +1162,29 @@
     return [tw, Math.max(2, th)];
   }
 
-  function syncTopPopToImage(unit, img) {
-    if (!img.width || !img.height) return;
-    unit.pop.h = unit.pop.w * (img.height / img.width);
-    buildPop(unit);
+  function persistFace(unit, face) {
+    const canvas = unit.maps[face];
+    if (!canvas || !canvas.toDataURL) return;
+    fetch("/__save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: `${unit.id}-${face}.png`,
+        data: canvas.toDataURL("image/png"),
+      }),
+    }).catch(() => {});
   }
 
-  function applyPopImage(unit, face, img) {
+  function applyPopImage(unit, face, img, persist = false) {
     if (face === "front" || face === "back") {
-      syncTopPopToImage(unit, img);
       setMap(unit, face, imageAsCanvas(img));
-      return;
-    }
-    if (face === "sideLeft" || face === "xbanner" || quoteCard(face) || isSidePoster(face)) {
+    } else if (face === "sideLeft" || face === "xbanner" || quoteCard(face) || isSidePoster(face)) {
       setMap(unit, face, imageAsCanvas(img));
-      return;
+    } else {
+      const [tw, th] = targetSize(unit, face);
+      setMap(unit, face, imageToCanvas(img, tw, th));
     }
-    const [tw, th] = targetSize(unit, face);
-    setMap(unit, face, imageToCanvas(img, tw, th));
+    if (persist) persistFace(unit, face);
   }
 
   function allPickMeshes() {
@@ -1180,6 +1250,9 @@
     controls.autoRotateSpeed = 1.4;
     controls.enabled = true;
     controls.update();
+    units.forEach((unit) => {
+      if (unit.floorLabel) unit.floorLabel.lookAt(orbitCam.position);
+    });
     resetFullViewport();
     renderer.setClearColor(0x141311, 1);
     renderer.render(scene, orbitCam);
@@ -1194,7 +1267,7 @@
         const img = new Image();
         img.onload = () => {
           URL.revokeObjectURL(img.src);
-          applyPopImage(selectedUnit(), face, img);
+          applyPopImage(selectedUnit(), face, img, true);
         };
         img.src = URL.createObjectURL(file);
       };
@@ -1221,7 +1294,10 @@
     editorPanel.querySelector(".copy-front").addEventListener("click", () => {
       const unit = selectedUnit();
       if (!unit.maps.front) return;
-      ["back", "left", "right"].forEach((k) => setMap(unit, k, unit.maps.front));
+      ["back", "left", "right"].forEach((k) => {
+        setMap(unit, k, unit.maps.front);
+        persistFace(unit, k);
+      });
     });
     editorPanel.querySelector(".reset-pop").addEventListener("click", () => applyDefaultPop(selectedUnit()));
     editorPanel.querySelector(".reset-side").addEventListener("click", () => applyDefaultSidePop(selectedUnit()));
@@ -1279,6 +1355,7 @@
       pointer.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
       ray.setFromCamera(pointer, orbitCam);
       const hits = ray.intersectObjects(allPickMeshes());
+      if (isSolo) return;
       if (!hits[0] || !hits[0].object.userData.unit) return;
       const { unit: unitId, face } = hits[0].object.userData;
       const switched = state.selected !== unitId;
@@ -1303,14 +1380,53 @@
       buildPop(unit);
     });
     await Promise.all(units.map((unit) => applyDefaultPop(unit)));
-    setSelected("c1");
+    setSelected(state.selected);
     setCameraView("hero");
+    if (isSolo) {
+      document.body.classList.add("solo-preview");
+      applySoloPreview({
+        concept: state.selected,
+        top: 0,
+        disp: false,
+        pay: false,
+        howto: false,
+        side: false,
+        xb: false,
+      });
+      window.addEventListener("message", (ev) => {
+        if (!ev.data || ev.data.type !== "dp-preview") return;
+        applySoloPreview(ev.data);
+      });
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: "dp-ready" }, "*");
+      }
+    }
     resize();
     window.addEventListener("resize", () => {
       resize();
       refreshPanelPreviews(selectedUnit());
     });
     tick();
+  }
+
+  function applySoloPreview(flags) {
+    const id = flags.concept && units.some((u) => u.id === flags.concept) ? flags.concept : "c1";
+    setSelected(id);
+    units.forEach((unit) => {
+      const on = unit.id === id;
+      unit.group.visible = on;
+      unit.group.position.x = on ? 0 : UNIT_X[unit.id];
+      if (!on) return;
+      unit.popGroup.visible = flags.top > 0;
+      if (unit.popMeshes.back) unit.popMeshes.back.visible = flags.top === 4;
+      if (unit.attach.sideLeft) unit.attach.sideLeft.visible = !!flags.disp;
+      if (unit.attach.posters) unit.attach.posters.visible = !!flags.side;
+      if (unit.attach.quote0) unit.attach.quote0.visible = !!flags.pay;
+      if (unit.attach.quote1) unit.attach.quote1.visible = !!flags.howto;
+      if (unit.attach.xbanner) unit.attach.xbanner.visible = !!flags.xb;
+    });
+    if (flags.view && views[flags.view]) setCameraView(flags.view);
+    else if (flags.xb) controls.target.set(-12, 90, 0);
   }
 
   start();

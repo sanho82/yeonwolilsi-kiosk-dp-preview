@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260911ab" />
+  <link rel="stylesheet" href="styles.css?v=20260922s" />
 </head>
 <body>
   <div id="app">
@@ -25,7 +25,7 @@
 
       <section class="block">
         <div class="block-title">상단 POP 4면</div>
-        <p class="hint">앞·뒤는 <b>1,024 × 682 px</b> 비율입니다.</p>
+        <p class="hint">실물 <b>600 × 400 mm</b> (3:2). 도안은 같은 비율이면 됩니다. 예: <b>1,200 × 800 px</b>.</p>
         <div class="faces pop-faces">
           <label class="face-slot" data-face="front">
             <input type="file" accept="image/*" hidden />
@@ -60,7 +60,7 @@
 
       <section class="block">
         <div class="block-title">좌측 디스플레이 POP</div>
-        <p class="hint">도안 <b>613 × 1,024 px</b> · 실물 약 225 × 376 mm</p>
+        <p class="hint">실물 <b>146 × 500 mm</b>. 도안은 같은 비율이면 됩니다. 예: <b>292 × 1,000 px</b>.</p>
         <div class="faces side-pop-faces">
           <label class="face-slot portrait" data-face="sideLeft">
             <input type="file" accept="image/*" hidden />
@@ -69,7 +69,7 @@
             <span class="face-meta">K-FORTUNE</span>
           </label>
           <div class="size-card">
-            바깥으로 약 150 mm 나옴<br/>
+            실물 146 × 500 mm<br/>
             오른쪽은 포토카드·인화지 전시
           </div>
         </div>
@@ -80,7 +80,7 @@
 
       <section class="block">
         <div class="block-title">측면 가로 포스터</div>
-        <p class="hint">기기 좌·우측면에 붙입니다. 도안 <b>1,152 × 864 px</b> · 실물 약 380 × 500 mm. 기기 깊이보다 조금 작아 랩핑 여백이 보입니다.</p>
+        <p class="hint">기기 좌·우측면에 붙입니다. 도안 <b>1,152 × 864 px</b> · 실물 약 380 × 500 mm. 기기 깊이 652 mm보다 작아 앞뒤 랩핑 여백이 보입니다.</p>
         <div class="faces">
           <label class="face-slot" data-face="posterLeft">
             <input type="file" accept="image/*" hidden />
@@ -101,18 +101,18 @@
       </section>
 
       <section class="block">
-        <div class="block-title">좌측 문구 POP</div>
-        <p class="hint">왼쪽 세로 POP 위·아래 가로 배너입니다.</p>
+        <div class="block-title">문구 POP</div>
+        <p class="hint">왼쪽은 결제, 오른쪽은 HOW TO. 같은 높이로 좌우 대칭입니다. 둘 다 실물 <b>150 × 50 mm</b>.</p>
         <div class="faces quote-pop-faces">
           <label class="face-slot quote" data-face="quote0">
             <input type="file" accept="image/*" hidden />
-            <span class="face-tag">위</span>
+            <span class="face-tag">좌</span>
             <canvas></canvas>
-            <span class="face-meta">포토카드</span>
+            <span class="face-meta">결제</span>
           </label>
           <label class="face-slot quote" data-face="quote1">
             <input type="file" accept="image/*" hidden />
-            <span class="face-tag">아래</span>
+            <span class="face-tag">우</span>
             <canvas></canvas>
             <span class="face-meta">HOW TO</span>
           </label>
@@ -124,7 +124,7 @@
 
       <section class="block">
         <div class="block-title">X 배너</div>
-        <p class="hint">선택한 기기 왼쪽에 세웁니다. 도안 비율 <b>2,835 × 8,505 px</b> 유지 · 실물 약 547 × 1,640 mm. 높이는 상단 POP을 뺀 기기 높이와 같습니다.</p>
+        <p class="hint">선택한 기기 왼쪽에 세웁니다. 도안 비율 <b>2,835 × 8,505 px</b> 유지 · 실물 <b>600 × 1,800 mm</b>.</p>
         <div class="faces side-pop-faces">
           <label class="face-slot xbanner" data-face="xbanner">
             <input type="file" accept="image/*" hidden />
@@ -135,7 +135,7 @@
           <div class="size-card">
             도안 사이즈<br/>
             <b>2,835 × 8,505 px</b><br/>
-            실물 약 547 × 1,640 mm<br/>
+            실물 600 × 1,800 mm<br/>
             기기 왼쪽 바깥에 배치
           </div>
         </div>
@@ -178,6 +178,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="app.js?v=20260911ab"></script>
+  <script src="app.js?v=20260922s"></script>
 </body>
 </html>
