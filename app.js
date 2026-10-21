@@ -1,5 +1,5 @@
 (() => {
-  const ASSET_V = "20261022a";
+  const ASSET_V = "20261022b";
   // JIODI JDK Phk / YMDT320. 1 unit = 1 cm.
   // Cabinet 610 × 1612 mm. Screen 744.4 mm sits under a short crown (handle + camera),
   // matching the product photos — CAD's 430 mm header was visually too tall.
@@ -93,6 +93,11 @@
     view: "hero",
     autoRotate: false,
     selected: "c1",
+    skip: {
+      back: false,
+      posterLeft: false,
+      posterRight: false,
+    },
   };
 
   const viewport = document.getElementById("viewport");
@@ -842,9 +847,12 @@
       ["posterLeft", -1],
       ["posterRight", 1],
     ].forEach(([key, side]) => {
+      const g = new THREE.Group();
+      postersG.add(g);
+      unit.attach[key] = g;
       const board = box(posterThick, posterH, posterW, ink);
       board.position.set(side * (w / 2 + posterThick / 2 + 0.02), posterY, 0);
-      postersG.add(board);
+      g.add(board);
       mats[key] = new THREE.MeshBasicMaterial({
         map: unit.texCache[key] || null,
         polygonOffset: true,
@@ -860,7 +868,7 @@
       posterFace.castShadow = false;
       markFace(posterFace, unit, key);
       posterFace.renderOrder = 3;
-      postersG.add(posterFace);
+      g.add(posterFace);
       unit.sideMeshes[key] = posterFace;
       if (unit.maps[key] && unit.texCache[key]) {
         mats[key].map = unit.texCache[key];
@@ -1194,9 +1202,23 @@
     renderer.render(scene, orbitCam);
   }
 
+  function applySkips() {
+    const unit = selectedUnit();
+    if (!unit) return;
+    if (unit.popMeshes.back) unit.popMeshes.back.visible = !state.skip.back;
+    if (unit.attach.posterLeft) unit.attach.posterLeft.visible = !state.skip.posterLeft;
+    if (unit.attach.posterRight) unit.attach.posterRight.visible = !state.skip.posterRight;
+    Object.keys(state.skip).forEach((key) => {
+      const wrap = editorPanel.querySelector(`[data-skip-wrap="${key}"]`);
+      const box = editorPanel.querySelector(`input[data-skip="${key}"]`);
+      if (wrap) wrap.classList.toggle("is-off", !!state.skip[key]);
+      if (box) box.checked = !!state.skip[key];
+    });
+  }
+
   function bindSlots() {
     editorPanel.querySelectorAll(".face-slot").forEach((slot) => {
-      const input = slot.querySelector("input");
+      const input = slot.querySelector('input[type="file"]');
       const face = slot.dataset.face;
       const onFile = (file) => {
         if (!file) return;
@@ -1239,6 +1261,12 @@
     editorPanel.querySelector(".reset-side").addEventListener("click", () => applyDefaultSidePop(selectedUnit()));
     editorPanel.querySelector(".reset-posters").addEventListener("click", () => applyDefaultSidePosters(selectedUnit()));
     editorPanel.querySelector(".reset-xbanner").addEventListener("click", () => applyDefaultXBanner(selectedUnit()));
+    editorPanel.querySelectorAll("input[data-skip]").forEach((box) => {
+      box.addEventListener("change", () => {
+        state.skip[box.dataset.skip] = box.checked;
+        applySkips();
+      });
+    });
     bindSlots();
   }
 
@@ -1309,6 +1337,7 @@
     });
     await Promise.all(units.map((unit) => applyDefaultPop(unit)));
     setSelected(state.selected);
+    applySkips();
     setCameraView("hero");
     if (isSolo) {
       document.body.classList.add("solo-preview");
@@ -1349,6 +1378,8 @@
       if (unit.popMeshes.back) unit.popMeshes.back.visible = flags.top === 4;
       if (unit.attach.sideLeft) unit.attach.sideLeft.visible = !!flags.disp;
       if (unit.attach.posters) unit.attach.posters.visible = !!flags.side;
+      if (unit.attach.posterLeft) unit.attach.posterLeft.visible = !!flags.side && flags.posterLeft !== false;
+      if (unit.attach.posterRight) unit.attach.posterRight.visible = !!flags.side && flags.posterRight !== false;
       if (unit.attach.quote0) unit.attach.quote0.visible = !!flags.pay;
       if (unit.attach.quote1) unit.attach.quote1.visible = !!flags.howto;
       if (unit.attach.xbanner) unit.attach.xbanner.visible = !!flags.xb;

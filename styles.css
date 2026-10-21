@@ -168,6 +168,26 @@ body.solo-preview .stage-label {
   align-items: start;
 }
 
+.slot-wrap {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.skip-opt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.slot-wrap.is-off .face-slot {
+  opacity: 0.38;
+  pointer-events: none;
+}
+
 .face-slot {
   position: relative;
   display: grid;
