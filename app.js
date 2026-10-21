@@ -1,5 +1,5 @@
 (() => {
-  const ASSET_V = "20261021a";
+  const ASSET_V = "20261022a";
   // JIODI JDK Phk / YMDT320. 1 unit = 1 cm.
   // Cabinet 610 × 1612 mm. Screen 744.4 mm sits under a short crown (handle + camera),
   // matching the product photos — CAD's 430 mm header was visually too tall.
@@ -71,45 +71,28 @@
   const CONCEPTS = [
     {
       id: "c1",
-      title: "컨셉1. 1인강조",
+      title: "키오스크 DP",
       sub: "",
-      floor: "컨셉1",
-      lede: "기기 한 대만 보여 줍니다. 탭으로 컨셉 도안만 바꿉니다.",
-    },
-    {
-      id: "c2",
-      title: "컨셉2. 2인강조",
-      sub: "최애궁합 포괄",
-      floor: "컨셉2",
-      lede: "기기 한 대만 보여 줍니다. 탭으로 컨셉 도안만 바꿉니다.",
-    },
-    {
-      id: "c3",
-      title: "컨셉3",
-      sub: "",
-      floor: "컨셉3",
-      lede: "기기 한 대만 보여 줍니다. 탭으로 컨셉 도안만 바꿉니다.",
+      floor: "",
+      lede: "각 요소에 도안을 올리면 3D에 바로 반영됩니다.",
     },
   ];
-  const POP_ASSETS = Object.fromEntries(
-    ["c1", "c2", "c3"].map((id) => [
-      id,
-      {
-        front: `assets/${id}-front.png`,
-        back: `assets/${id}-back.png`,
-        left: `assets/${id}-left.png`,
-        right: `assets/${id}-right.png`,
-      },
-    ])
-  );
-  const UNIT_X = { c1: 0, c2: 0, c3: 0 };
+  const POP_ASSETS = {
+    c1: {
+      front: "assets/c1-front.png",
+      back: "assets/c1-back.png",
+      left: "assets/c1-left.png",
+      right: "assets/c1-right.png",
+    },
+  };
+  const UNIT_X = { c1: 0 };
   const SOLO = new URLSearchParams(location.search);
   const isSolo = SOLO.has("solo") || SOLO.has("preview");
 
   const state = {
     view: "hero",
     autoRotate: false,
-    selected: SOLO.get("solo") || SOLO.get("c") || "c1",
+    selected: "c1",
   };
 
   const viewport = document.getElementById("viewport");
@@ -725,19 +708,8 @@
     if (!units.some((unit) => unit.id === id)) return;
     state.selected = id;
     const unit = selectedUnit();
-    const concept = unit.concept;
-    const title = document.getElementById("conceptTitle");
-    title.textContent = concept.title;
-    if (concept.sub) {
-      title.innerHTML = `${concept.title} <span>${concept.sub}</span>`;
-    }
-    document.getElementById("conceptLede").textContent = concept.lede;
-    document.querySelectorAll("#conceptTabs button").forEach((btn) => {
-      btn.classList.toggle("is-on", btn.dataset.unit === id);
-    });
     units.forEach((item) => {
-      const on = item.id === id;
-      item.group.visible = on;
+      item.group.visible = item.id === id;
       item.group.position.x = 0;
       item.ring.material.opacity = 0;
       if (item.floorLabel) item.floorLabel.visible = false;
@@ -1286,9 +1258,6 @@
       if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
       if (e.key === "+" || e.key === "=") dollyBy(0.78);
       if (e.key === "-" || e.key === "_") dollyBy(1.28);
-      if (e.key === "1") setSelected("c1");
-      if (e.key === "2") setSelected("c2");
-      if (e.key === "3") setSelected("c3");
     });
     document.getElementById("captureBtn").addEventListener("click", () => {
       const a = document.createElement("a");
@@ -1297,9 +1266,6 @@
       a.click();
     });
 
-    document.querySelectorAll("#conceptTabs button").forEach((btn) => {
-      btn.addEventListener("click", () => setSelected(btn.dataset.unit));
-    });
     bindEditor();
 
     const ray = new THREE.Raycaster();
