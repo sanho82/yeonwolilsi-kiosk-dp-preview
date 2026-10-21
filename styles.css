@@ -163,6 +163,46 @@ body.solo-preview .stage-label {
   gap: 10px;
 }
 
+.screen-picks {
+  grid-template-columns: 1fr 1fr;
+}
+
+.screen-pick {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.screen-pick input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.screen-pick img {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+  border-radius: 10px;
+  background: var(--slot);
+  border: 1px dashed rgba(244, 239, 230, 0.18);
+  display: block;
+}
+
+.screen-pick:has(input:checked) img {
+  border-color: var(--gold);
+  border-style: solid;
+  box-shadow: 0 0 0 3px rgba(196, 165, 116, 0.25);
+}
+
+.screen-pick em {
+  font-style: normal;
+  font-size: 11px;
+  color: var(--muted);
+}
+
 .side-pop-faces {
   grid-template-columns: 132px 1fr;
   align-items: start;

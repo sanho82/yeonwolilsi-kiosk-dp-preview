@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261022b" />
+  <link rel="stylesheet" href="styles.css?v=20261022c" />
 </head>
 <body>
   <div id="app">
@@ -17,6 +17,33 @@
         <h1>키오스크 DP</h1>
         <p class="lede">각 요소에 도안을 올리면 3D에 바로 반영됩니다.</p>
       </header>
+
+      <section class="block">
+        <div class="block-title">디스플레이 화면</div>
+        <p class="hint">기기 화면에 들어갈 대기 화면입니다. 택 1.</p>
+        <div class="faces screen-picks">
+          <label class="screen-pick">
+            <input type="radio" name="screen" value="s1" checked />
+            <img src="assets/ui/screen-1.jpg?v=20261022c" alt="책" />
+            <em>1. 책</em>
+          </label>
+          <label class="screen-pick">
+            <input type="radio" name="screen" value="s2" />
+            <img src="assets/ui/screen-2.jpg?v=20261022c" alt="우주" />
+            <em>2. 우주</em>
+          </label>
+          <label class="screen-pick">
+            <input type="radio" name="screen" value="s3" />
+            <img src="assets/ui/screen-3.jpg?v=20261022c" alt="인물" />
+            <em>3. 인물</em>
+          </label>
+          <label class="screen-pick">
+            <input type="radio" name="screen" value="s4" />
+            <img src="assets/ui/screen-4.jpg?v=20261022c" alt="카드" />
+            <em>4. 카드</em>
+          </label>
+        </div>
+      </section>
 
       <section class="block">
         <div class="block-title">상단 POP</div>
@@ -160,6 +187,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="app.js?v=20261022b"></script>
+  <script src="app.js?v=20261022c"></script>
 </body>
 </html>

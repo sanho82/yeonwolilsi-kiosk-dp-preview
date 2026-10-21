@@ -1,5 +1,5 @@
 (() => {
-  const ASSET_V = "20261022b";
+  const ASSET_V = "20261022c";
   // JIODI JDK Phk / YMDT320. 1 unit = 1 cm.
   // Cabinet 610 × 1612 mm. Screen 744.4 mm sits under a short crown (handle + camera),
   // matching the product photos — CAD's 430 mm header was visually too tall.
@@ -86,6 +86,13 @@
     },
   };
   const UNIT_X = { c1: 0 };
+  const SCREENS = [
+    { id: "s1", src: `assets/ui/screen-1.jpg?v=${ASSET_V}` },
+    { id: "s2", src: `assets/ui/screen-2.jpg?v=${ASSET_V}` },
+    { id: "s3", src: `assets/ui/screen-3.jpg?v=${ASSET_V}` },
+    { id: "s4", src: `assets/ui/screen-4.jpg?v=${ASSET_V}` },
+  ];
+  const screenTexCache = {};
   const SOLO = new URLSearchParams(location.search);
   const isSolo = SOLO.has("solo") || SOLO.has("preview");
 
@@ -93,6 +100,7 @@
     view: "hero",
     autoRotate: false,
     selected: "c1",
+    screen: "s1",
     skip: {
       back: false,
       posterLeft: false,
@@ -261,6 +269,28 @@
     }
 
     return c;
+  }
+
+  async function loadScreenTex(id) {
+    if (!screenTexCache[id]) {
+      const item = SCREENS.find((s) => s.id === id) || SCREENS[0];
+      screenTexCache[id] = await loadImageTexture(item.src);
+    }
+    return screenTexCache[id];
+  }
+
+  async function setScreen(id) {
+    if (!SCREENS.some((s) => s.id === id)) return;
+    state.screen = id;
+    const tex = await loadScreenTex(id);
+    units.forEach((unit) => {
+      if (!unit.screenMesh) return;
+      unit.screenMesh.material.map = tex;
+      unit.screenMesh.material.needsUpdate = true;
+    });
+    document.querySelectorAll('input[name="screen"]').forEach((el) => {
+      el.checked = el.value === id;
+    });
   }
 
   function loadImageTexture(url) {
@@ -804,6 +834,7 @@
     const screen = new THREE.Mesh(new THREE.PlaneGeometry(screenW, screenH), screenMat);
     screen.position.set(screenX, screenY, d / 2 + 0.28);
     unit.bodyGroup.add(screen);
+    unit.screenMesh = screen;
     screen.renderOrder = 3;
     bezel.renderOrder = 2;
     frame.renderOrder = 1;
@@ -1219,6 +1250,7 @@
   function bindSlots() {
     editorPanel.querySelectorAll(".face-slot").forEach((slot) => {
       const input = slot.querySelector('input[type="file"]');
+      if (!input) return;
       const face = slot.dataset.face;
       const onFile = (file) => {
         if (!file) return;
@@ -1261,6 +1293,11 @@
     editorPanel.querySelector(".reset-side").addEventListener("click", () => applyDefaultSidePop(selectedUnit()));
     editorPanel.querySelector(".reset-posters").addEventListener("click", () => applyDefaultSidePosters(selectedUnit()));
     editorPanel.querySelector(".reset-xbanner").addEventListener("click", () => applyDefaultXBanner(selectedUnit()));
+    editorPanel.querySelectorAll('input[name="screen"]').forEach((el) => {
+      el.addEventListener("change", () => {
+        if (el.checked) setScreen(el.value);
+      });
+    });
     editorPanel.querySelectorAll("input[data-skip]").forEach((box) => {
       box.addEventListener("change", () => {
         state.skip[box.dataset.skip] = box.checked;
@@ -1326,7 +1363,7 @@
   async function start() {
     await document.fonts.ready;
     bindUi();
-    const screenTex = await loadImageTexture("assets/screen.png").catch(() => null);
+    const screenTex = await loadScreenTex(state.screen).catch(() => null);
     units.forEach((unit) => {
       buildBody(unit, screenTex);
       applyDefaultBody(unit);
