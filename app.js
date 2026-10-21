@@ -1,5 +1,5 @@
 (() => {
-  const ASSET_V = "20261022e";
+  const ASSET_V = "20261022f";
   // JIODI JDK Phk / YMDT320. 1 unit = 1 cm.
   // Cabinet 610 × 1612 mm. Screen 744.4 mm sits under a short crown (handle + camera),
   // matching the product photos — CAD's 430 mm header was visually too tall.
@@ -108,6 +108,7 @@
     selected: "c1",
     screen: "s1",
     xbanner: "x1",
+    xbanner2: "x2",
     xbCount: 1,
     skip: {
       back: false,
@@ -309,35 +310,39 @@
     return xbTexCache[id];
   }
 
-  async function setXBanner(id) {
+  async function setXBanner(slot, id) {
     if (!XBANNERS.some((s) => s.id === id)) return;
-    state.xbanner = id;
+    const key = slot === 2 ? "xbanner2" : "xbanner";
+    state[key] = id;
     const tex = await loadXBannerTex(id);
     units.forEach((unit) => {
-      ["xbanner", "xbanner2"].forEach((key) => {
-        const mesh = unit.sideMeshes[key];
-        if (!mesh) return;
-        mesh.material.map = tex;
-        mesh.material.needsUpdate = true;
-      });
+      const mesh = unit.sideMeshes[key];
+      if (!mesh) return;
+      mesh.material.map = tex;
+      mesh.material.needsUpdate = true;
     });
-    document.querySelectorAll('input[name="xbanner"]').forEach((el) => {
+    document.querySelectorAll(`input[name="${key}"]`).forEach((el) => {
       el.checked = el.value === id;
     });
   }
 
   function setXbCount(n, moveCam = true) {
     state.xbCount = n === 2 ? 2 : 1;
+    const two = state.xbCount === 2;
     units.forEach((unit) => {
-      if (unit.attach.xbanner2) unit.attach.xbanner2.visible = state.xbCount === 2;
+      if (unit.attach.xbanner2) unit.attach.xbanner2.visible = two;
     });
     document.querySelectorAll("[data-xb-count]").forEach((btn) => {
       btn.classList.toggle("is-on", Number(btn.dataset.xbCount) === state.xbCount);
     });
-    views.hero =
-      state.xbCount === 2
-        ? { pos: [205, 150, 360], target: [-55, 90, 0], label: "3/4 뷰" }
-        : { pos: [170, 130, 300], target: [-12, 90, 0], label: "3/4 뷰" };
+    document.querySelectorAll(".xb-label-1").forEach((el) => {
+      el.hidden = !two;
+    });
+    const slot2 = document.getElementById("xbSlot2");
+    if (slot2) slot2.hidden = !two;
+    views.hero = two
+      ? { pos: [205, 150, 360], target: [-55, 90, 0], label: "3/4 뷰" }
+      : { pos: [170, 130, 300], target: [-12, 90, 0], label: "3/4 뷰" };
     if (moveCam && state.view === "hero") setCameraView("hero");
   }
 
@@ -1350,7 +1355,12 @@
     });
     editorPanel.querySelectorAll('input[name="xbanner"]').forEach((el) => {
       el.addEventListener("change", () => {
-        if (el.checked) setXBanner(el.value);
+        if (el.checked) setXBanner(1, el.value);
+      });
+    });
+    editorPanel.querySelectorAll('input[name="xbanner2"]').forEach((el) => {
+      el.addEventListener("change", () => {
+        if (el.checked) setXBanner(2, el.value);
       });
     });
     editorPanel.querySelectorAll("[data-xb-count]").forEach((btn) => {
@@ -1430,7 +1440,8 @@
       buildPop(unit);
     });
     await Promise.all(units.map((unit) => applyDefaultPop(unit)));
-    await setXBanner(state.xbanner);
+    await setXBanner(1, state.xbanner);
+    await setXBanner(2, state.xbanner2);
     setSelected(state.selected);
     applySkips();
     setXbCount(state.xbCount, false);

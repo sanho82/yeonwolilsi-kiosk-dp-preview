@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261022e" />
+  <link rel="stylesheet" href="styles.css?v=20261022f" />
 </head>
 <body>
   <div id="app">
@@ -133,27 +133,48 @@
 
       <section class="block">
         <div class="block-title">X 배너</div>
-        <p class="hint">실물 <b>600 × 1,800 mm</b>. 도안 택 1, 수량은 1개 또는 2개. 기기 왼쪽에 세웁니다.</p>
+        <p class="hint">실물 <b>600 × 1,800 mm</b>. 수량은 1개 또는 2개. 2개면 도안을 각각 고릅니다.</p>
         <div class="chip-row" id="xbCount">
           <button type="button" data-xb-count="1" class="is-on">1개</button>
           <button type="button" data-xb-count="2">2개</button>
         </div>
+        <p class="xb-label xb-label-1">1번 · 기기 쪽</p>
         <div class="faces xb-picks">
           <label class="screen-pick">
             <input type="radio" name="xbanner" value="x1" checked />
-            <img src="assets/ui/xb-1.jpg?v=20261022e" alt="오늘의 나" />
+            <img src="assets/ui/xb-1.jpg?v=20261022f" alt="오늘의 나" />
             <em>1. 오늘의 나</em>
           </label>
           <label class="screen-pick">
             <input type="radio" name="xbanner" value="x2" />
-            <img src="assets/ui/xb-2.jpg?v=20261022e" alt="내 행운" />
+            <img src="assets/ui/xb-2.jpg?v=20261022f" alt="내 행운" />
             <em>2. 내 행운</em>
           </label>
           <label class="screen-pick">
             <input type="radio" name="xbanner" value="x3" />
-            <img src="assets/ui/xb-3.jpg?v=20261022e" alt="여하간 운" />
+            <img src="assets/ui/xb-3.jpg?v=20261022f" alt="여하간 운" />
             <em>3. 여하간 운</em>
           </label>
+        </div>
+        <div id="xbSlot2" hidden>
+          <p class="xb-label">2번 · 바깥쪽</p>
+          <div class="faces xb-picks">
+            <label class="screen-pick">
+              <input type="radio" name="xbanner2" value="x1" />
+              <img src="assets/ui/xb-1.jpg?v=20261022f" alt="오늘의 나" />
+              <em>1. 오늘의 나</em>
+            </label>
+            <label class="screen-pick">
+              <input type="radio" name="xbanner2" value="x2" checked />
+              <img src="assets/ui/xb-2.jpg?v=20261022f" alt="내 행운" />
+              <em>2. 내 행운</em>
+            </label>
+            <label class="screen-pick">
+              <input type="radio" name="xbanner2" value="x3" />
+              <img src="assets/ui/xb-3.jpg?v=20261022f" alt="여하간 운" />
+              <em>3. 여하간 운</em>
+            </label>
+          </div>
         </div>
       </section>
 
@@ -191,6 +212,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="app.js?v=20261022e"></script>
+  <script src="app.js?v=20261022f"></script>
 </body>
 </html>

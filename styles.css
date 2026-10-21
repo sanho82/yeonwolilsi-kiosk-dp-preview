@@ -217,6 +217,21 @@ body.solo-preview .stage-label {
   margin: 0 0 12px;
 }
 
+.xb-label {
+  margin: 4px 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.xb-label-1[hidden],
+#xbSlot2[hidden] {
+  display: none;
+}
+
+#xbSlot2 {
+  margin-top: 14px;
+}
+
 .side-pop-faces {
   grid-template-columns: 132px 1fr;
   align-items: start;
