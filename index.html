@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260922s" />
+  <link rel="stylesheet" href="styles.css?v=20261021a" />
 </head>
 <body>
   <div id="app">
@@ -20,7 +20,7 @@
           <button type="button" data-unit="c3">컨셉3</button>
         </div>
         <h1 id="conceptTitle">컨셉1. 1인강조</h1>
-        <p class="lede" id="conceptLede">왼쪽 기기입니다. 3D에서 기기를 눌러도 이 칸이 바뀝니다.</p>
+        <p class="lede" id="conceptLede">기기 한 대만 보여 줍니다. 탭으로 컨셉 도안만 바꿉니다.</p>
       </header>
 
       <section class="block">
@@ -79,7 +79,7 @@
       </section>
 
       <section class="block">
-        <div class="block-title">측면 가로 포스터</div>
+        <div class="block-title">좌우부착 포스터</div>
         <p class="hint">기기 좌·우측면에 붙입니다. 도안 <b>1,152 × 864 px</b> · 실물 약 380 × 500 mm. 기기 깊이 652 mm보다 작아 앞뒤 랩핑 여백이 보입니다.</p>
         <div class="faces">
           <label class="face-slot" data-face="posterLeft">
@@ -101,30 +101,8 @@
       </section>
 
       <section class="block">
-        <div class="block-title">문구 POP</div>
-        <p class="hint">왼쪽은 결제, 오른쪽은 HOW TO. 같은 높이로 좌우 대칭입니다. 둘 다 실물 <b>150 × 50 mm</b>.</p>
-        <div class="faces quote-pop-faces">
-          <label class="face-slot quote" data-face="quote0">
-            <input type="file" accept="image/*" hidden />
-            <span class="face-tag">좌</span>
-            <canvas></canvas>
-            <span class="face-meta">결제</span>
-          </label>
-          <label class="face-slot quote" data-face="quote1">
-            <input type="file" accept="image/*" hidden />
-            <span class="face-tag">우</span>
-            <canvas></canvas>
-            <span class="face-meta">HOW TO</span>
-          </label>
-        </div>
-        <div class="btn-row">
-          <button type="button" class="ghost reset-quotes">기본 문구</button>
-        </div>
-      </section>
-
-      <section class="block">
         <div class="block-title">X 배너</div>
-        <p class="hint">선택한 기기 왼쪽에 세웁니다. 도안 비율 <b>2,835 × 8,505 px</b> 유지 · 실물 <b>600 × 1,800 mm</b>.</p>
+        <p class="hint">기기 왼쪽에 세웁니다. 도안 비율 <b>2,835 × 8,505 px</b> 유지 · 실물 <b>600 × 1,800 mm</b>.</p>
         <div class="faces side-pop-faces">
           <label class="face-slot xbanner" data-face="xbanner">
             <input type="file" accept="image/*" hidden />
@@ -172,12 +150,12 @@
         <button type="button" id="zoomFit" title="기본 거리">맞춤</button>
         <button type="button" id="zoomIn" title="확대">+</button>
       </div>
-      <div class="stage-label" id="stageLabel">3/4 뷰 · 컨셉 비교</div>
+      <div class="stage-label" id="stageLabel">3/4 뷰</div>
     </main>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="app.js?v=20260922s"></script>
+  <script src="app.js?v=20261021a"></script>
 </body>
 </html>

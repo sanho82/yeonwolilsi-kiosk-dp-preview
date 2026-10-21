@@ -1,5 +1,5 @@
 (() => {
-  const ASSET_V = "20260922s";
+  const ASSET_V = "20261021a";
   // JIODI JDK Phk / YMDT320. 1 unit = 1 cm.
   // Cabinet 610 × 1612 mm. Screen 744.4 mm sits under a short crown (handle + camera),
   // matching the product photos — CAD's 430 mm header was visually too tall.
@@ -74,21 +74,21 @@
       title: "컨셉1. 1인강조",
       sub: "",
       floor: "컨셉1",
-      lede: "왼쪽 기기입니다. 3D에서 기기를 눌러도 이 칸이 바뀝니다.",
+      lede: "기기 한 대만 보여 줍니다. 탭으로 컨셉 도안만 바꿉니다.",
     },
     {
       id: "c2",
       title: "컨셉2. 2인강조",
       sub: "최애궁합 포괄",
       floor: "컨셉2",
-      lede: "가운데 기기입니다. 3D에서 기기를 눌러도 이 칸이 바뀝니다.",
+      lede: "기기 한 대만 보여 줍니다. 탭으로 컨셉 도안만 바꿉니다.",
     },
     {
       id: "c3",
       title: "컨셉3",
       sub: "",
       floor: "컨셉3",
-      lede: "오른쪽 기기입니다. 3D에서 기기를 눌러도 이 칸이 바뀝니다.",
+      lede: "기기 한 대만 보여 줍니다. 탭으로 컨셉 도안만 바꿉니다.",
     },
   ];
   const POP_ASSETS = Object.fromEntries(
@@ -102,7 +102,7 @@
       },
     ])
   );
-  const UNIT_X = { c1: -176, c2: 0, c3: 176 };
+  const UNIT_X = { c1: 0, c2: 0, c3: 0 };
   const SOLO = new URLSearchParams(location.search);
   const isSolo = SOLO.has("solo") || SOLO.has("preview");
 
@@ -139,27 +139,19 @@
   controls.dampingFactor = 0.06;
   controls.enableZoom = true;
   controls.zoomSpeed = 1.15;
-  controls.minDistance = isSolo ? 120 : 260;
-  controls.maxDistance = isSolo ? 900 : 2800;
+  controls.minDistance = 120;
+  controls.maxDistance = 900;
   controls.minPolarAngle = 0;
   controls.maxPolarAngle = Math.PI;
-  controls.target.set(0, 98, 0);
+  controls.target.set(-12, 90, 0);
 
-  const views = isSolo
-    ? {
-        hero: { pos: [170, 130, 300], target: [-12, 90, 0], label: "3/4 뷰" },
-        front: { pos: [0, 110, 320], target: [0, 85, 0], label: "정면" },
-        left: { pos: [-280, 120, 160], target: [0, 85, 0], label: "좌측" },
-        right: { pos: [280, 120, 160], target: [0, 85, 0], label: "우측" },
-        back: { pos: [0, 130, -320], target: [0, 85, 0], label: "후면" },
-      }
-    : {
-        hero: { pos: [720, 280, 1280], target: [0, 98, 0], label: "3/4 뷰 · 컨셉 비교" },
-        front: { pos: [0, 250, 1480], target: [0, 98, 0], label: "정면 · 컨셉 비교" },
-        left: { pos: [-1180, 260, 720], target: [0, 98, 0], label: "좌측 · 컨셉 비교" },
-        right: { pos: [1180, 260, 720], target: [0, 98, 0], label: "우측 · 컨셉 비교" },
-        back: { pos: [0, 270, -1480], target: [0, 98, 0], label: "후면 · 컨셉 비교" },
-      };
+  const views = {
+    hero: { pos: [170, 130, 300], target: [-12, 90, 0], label: "3/4 뷰" },
+    front: { pos: [0, 110, 320], target: [0, 85, 0], label: "정면" },
+    left: { pos: [-280, 120, 160], target: [0, 85, 0], label: "좌측" },
+    right: { pos: [280, 120, 160], target: [0, 85, 0], label: "우측" },
+    back: { pos: [0, 130, -320], target: [0, 85, 0], label: "후면" },
+  };
 
   function mulberry32(a) {
     return () => {
@@ -744,7 +736,11 @@
       btn.classList.toggle("is-on", btn.dataset.unit === id);
     });
     units.forEach((item) => {
-      item.ring.material.opacity = item.id === id ? 0.9 : 0;
+      const on = item.id === id;
+      item.group.visible = on;
+      item.group.position.x = 0;
+      item.ring.material.opacity = 0;
+      if (item.floorLabel) item.floorLabel.visible = false;
     });
     refreshPanelPreviews(unit);
   }
@@ -897,38 +893,6 @@
       if (unit.maps[key] && unit.texCache[key]) {
         mats[key].map = unit.texCache[key];
         mats[key].needsUpdate = true;
-      }
-    });
-
-    const quoteGap = 0.7;
-    const quoteZ = popZ + popDepth / 2 + 0.05;
-    QUOTE_POPS.forEach((card, i) => {
-      const qg = addAttach(card.key);
-      const qw = card.w;
-      const qh = card.h;
-      const y = sideY + sideH / 2 + quoteGap + qh / 2;
-      const x = card.side === "right" ? -sideX : sideX;
-      const board = box(qw, qh, 0.7, ink);
-      board.position.set(x, y, popZ + 0.05);
-      qg.add(board);
-      mats[card.key] = new THREE.MeshBasicMaterial({
-        map: unit.texCache[card.key] || null,
-        transparent: true,
-        alphaTest: 0.15,
-        polygonOffset: true,
-        polygonOffsetFactor: -1,
-        polygonOffsetUnits: -1,
-      });
-      const quoteFace = new THREE.Mesh(new THREE.PlaneGeometry(qw, qh), mats[card.key]);
-      quoteFace.position.set(x, y, quoteZ);
-      quoteFace.castShadow = false;
-      markFace(quoteFace, unit, card.key);
-      quoteFace.renderOrder = 4 + i;
-      qg.add(quoteFace);
-      unit.sideMeshes[card.key] = quoteFace;
-      if (unit.maps[card.key] && unit.texCache[card.key]) {
-        mats[card.key].map = unit.texCache[card.key];
-        mats[card.key].needsUpdate = true;
       }
     });
 
@@ -1302,7 +1266,6 @@
     editorPanel.querySelector(".reset-pop").addEventListener("click", () => applyDefaultPop(selectedUnit()));
     editorPanel.querySelector(".reset-side").addEventListener("click", () => applyDefaultSidePop(selectedUnit()));
     editorPanel.querySelector(".reset-posters").addEventListener("click", () => applyDefaultSidePosters(selectedUnit()));
-    editorPanel.querySelector(".reset-quotes").addEventListener("click", () => applyDefaultQuotes(selectedUnit()));
     editorPanel.querySelector(".reset-xbanner").addEventListener("click", () => applyDefaultXBanner(selectedUnit()));
     bindSlots();
   }
@@ -1375,7 +1338,6 @@
       applyDefaultBody(unit);
       applyDefaultSidePop(unit);
       applyDefaultSidePosters(unit);
-      applyDefaultQuotes(unit);
       applyDefaultXBanner(unit);
       buildPop(unit);
     });
