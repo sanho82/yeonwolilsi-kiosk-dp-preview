@@ -204,6 +204,19 @@ body.solo-preview .stage-label {
   color: var(--muted);
 }
 
+.xb-picks {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.xb-picks .screen-pick img {
+  height: 168px;
+  object-position: top;
+}
+
+#xbCount {
+  margin: 0 0 12px;
+}
+
 .side-pop-faces {
   grid-template-columns: 132px 1fr;
   align-items: start;

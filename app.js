@@ -1,5 +1,5 @@
 (() => {
-  const ASSET_V = "20261022d";
+  const ASSET_V = "20261022e";
   // JIODI JDK Phk / YMDT320. 1 unit = 1 cm.
   // Cabinet 610 × 1612 mm. Screen 744.4 mm sits under a short crown (handle + camera),
   // matching the product photos — CAD's 430 mm header was visually too tall.
@@ -93,6 +93,12 @@
     { id: "s4", src: `assets/ui/screen-4.jpg?v=${ASSET_V}` },
   ];
   const screenTexCache = {};
+  const XBANNERS = [
+    { id: "x1", src: `assets/ui/xb-1.jpg?v=${ASSET_V}` },
+    { id: "x2", src: `assets/ui/xb-2.jpg?v=${ASSET_V}` },
+    { id: "x3", src: `assets/ui/xb-3.jpg?v=${ASSET_V}` },
+  ];
+  const xbTexCache = {};
   const SOLO = new URLSearchParams(location.search);
   const isSolo = SOLO.has("solo") || SOLO.has("preview");
 
@@ -101,6 +107,8 @@
     autoRotate: false,
     selected: "c1",
     screen: "s1",
+    xbanner: "x1",
+    xbCount: 1,
     skip: {
       back: false,
       posterLeft: false,
@@ -291,6 +299,46 @@
     document.querySelectorAll('input[name="screen"]').forEach((el) => {
       el.checked = el.value === id;
     });
+  }
+
+  async function loadXBannerTex(id) {
+    if (!xbTexCache[id]) {
+      const item = XBANNERS.find((s) => s.id === id) || XBANNERS[0];
+      xbTexCache[id] = await loadImageTexture(item.src);
+    }
+    return xbTexCache[id];
+  }
+
+  async function setXBanner(id) {
+    if (!XBANNERS.some((s) => s.id === id)) return;
+    state.xbanner = id;
+    const tex = await loadXBannerTex(id);
+    units.forEach((unit) => {
+      ["xbanner", "xbanner2"].forEach((key) => {
+        const mesh = unit.sideMeshes[key];
+        if (!mesh) return;
+        mesh.material.map = tex;
+        mesh.material.needsUpdate = true;
+      });
+    });
+    document.querySelectorAll('input[name="xbanner"]').forEach((el) => {
+      el.checked = el.value === id;
+    });
+  }
+
+  function setXbCount(n, moveCam = true) {
+    state.xbCount = n === 2 ? 2 : 1;
+    units.forEach((unit) => {
+      if (unit.attach.xbanner2) unit.attach.xbanner2.visible = state.xbCount === 2;
+    });
+    document.querySelectorAll("[data-xb-count]").forEach((btn) => {
+      btn.classList.toggle("is-on", Number(btn.dataset.xbCount) === state.xbCount);
+    });
+    views.hero =
+      state.xbCount === 2
+        ? { pos: [205, 150, 360], target: [-55, 90, 0], label: "3/4 뷰" }
+        : { pos: [170, 130, 300], target: [-12, 90, 0], label: "3/4 뷰" };
+    if (moveCam && state.view === "hero") setCameraView("hero");
   }
 
   function loadImageTexture(url) {
@@ -757,6 +805,65 @@
     mesh.userData.face = face;
   }
 
+  function addXBannerStand(unit, parent, bannerX, matKey) {
+    const bw = X_BANNER.w;
+    const bh = X_BANNER.h;
+    const bannerLift = 0;
+    const bannerY = bannerLift + bh / 2;
+    const bannerZ = 4;
+    const ink = new THREE.MeshStandardMaterial({ color: 0x11110f, roughness: 0.4 });
+    const metal = new THREE.MeshStandardMaterial({
+      color: 0x2a2a2a,
+      metalness: 0.78,
+      roughness: 0.28,
+    });
+    const footX = bw * 0.36;
+    const footZ = 12;
+    [
+      [bannerX - 7, bannerLift + 1.5, bannerZ, bannerX - footX, 0.4, bannerZ + footZ],
+      [bannerX + 7, bannerLift + 1.5, bannerZ, bannerX + footX, 0.4, bannerZ + footZ],
+      [bannerX - 7, bannerLift + 1.5, bannerZ, bannerX - footX, 0.4, bannerZ - footZ],
+      [bannerX + 7, bannerLift + 1.5, bannerZ, bannerX + footX, 0.4, bannerZ - footZ],
+      [bannerX - footX, 0.5, bannerZ + footZ, bannerX + footX, 0.5, bannerZ - footZ],
+      [bannerX + footX, 0.5, bannerZ + footZ, bannerX - footX, 0.5, bannerZ - footZ],
+    ].forEach(([ax, ay, az, bx, by, bz], i) => {
+      parent.add(pole(ax, ay, az, bx, by, bz, i < 4 ? 0.48 : 0.36, metal));
+    });
+    const fabric = box(bw, bh, 0.4, ink);
+    fabric.position.set(bannerX, bannerY, bannerZ);
+    parent.add(fabric);
+    unit.mats[matKey] = new THREE.MeshBasicMaterial({
+      map: unit.texCache[matKey] || null,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+      polygonOffsetUnits: -1,
+    });
+    const bannerFace = new THREE.Mesh(new THREE.PlaneGeometry(bw, bh), unit.mats[matKey]);
+    bannerFace.position.set(bannerX, bannerY, bannerZ + 0.24);
+    bannerFace.castShadow = false;
+    markFace(bannerFace, unit, "xbanner");
+    bannerFace.renderOrder = 3;
+    parent.add(bannerFace);
+    unit.sideMeshes[matKey] = bannerFace;
+    const grommetMat = new THREE.MeshStandardMaterial({
+      color: 0xc5c5c5,
+      metalness: 0.82,
+      roughness: 0.22,
+    });
+    const gx = bw / 2 - 2.4;
+    const gy = bh / 2 - 2.4;
+    [
+      [-gx, gy],
+      [gx, gy],
+      [-gx, -gy],
+      [gx, -gy],
+    ].forEach(([dx, dy]) => {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.18, 8, 16), grommetMat);
+      ring.position.set(bannerX + dx, bannerY + dy, bannerZ + 0.32);
+      parent.add(ring);
+    });
+  }
+
   function buildBody(unit, screenTex) {
     clearGroup(unit.bodyGroup);
     Object.keys(unit.sideMeshes).forEach((key) => {
@@ -940,69 +1047,13 @@
     unit.bodyGroup.add(glow);
 
     const xbG = addAttach("xbanner");
+    const xbG2 = addAttach("xbanner2");
     const bw = X_BANNER.w;
-    const bh = X_BANNER.h;
-    const bannerSide = -1;
-    const bannerX = bannerSide < 0 ? popLeft - 12 - bw / 2 : w / 2 + 12 + bw / 2;
-    const bannerLift = 0;
-    const bannerY = bannerLift + bh / 2;
-    const bannerZ = 4;
-    const metal = new THREE.MeshStandardMaterial({
-      color: 0x2a2a2a,
-      metalness: 0.78,
-      roughness: 0.28,
-    });
-    const footX = bw * 0.36;
-    const footZ = 12;
-    [
-      [bannerX - 7, bannerLift + 1.5, bannerZ, bannerX - footX, 0.4, bannerZ + footZ],
-      [bannerX + 7, bannerLift + 1.5, bannerZ, bannerX + footX, 0.4, bannerZ + footZ],
-      [bannerX - 7, bannerLift + 1.5, bannerZ, bannerX - footX, 0.4, bannerZ - footZ],
-      [bannerX + 7, bannerLift + 1.5, bannerZ, bannerX + footX, 0.4, bannerZ - footZ],
-      [bannerX - footX, 0.5, bannerZ + footZ, bannerX + footX, 0.5, bannerZ - footZ],
-      [bannerX + footX, 0.5, bannerZ + footZ, bannerX - footX, 0.5, bannerZ - footZ],
-    ].forEach(([ax, ay, az, bx, by, bz], i) => {
-      xbG.add(pole(ax, ay, az, bx, by, bz, i < 4 ? 0.48 : 0.36, metal));
-    });
-
-    const fabric = box(bw, bh, 0.4, ink);
-    fabric.position.set(bannerX, bannerY, bannerZ);
-    xbG.add(fabric);
-    mats.xbanner = new THREE.MeshBasicMaterial({
-      map: unit.texCache.xbanner || null,
-      polygonOffset: true,
-      polygonOffsetFactor: -1,
-      polygonOffsetUnits: -1,
-    });
-    const bannerFace = new THREE.Mesh(new THREE.PlaneGeometry(bw, bh), mats.xbanner);
-    bannerFace.position.set(bannerX, bannerY, bannerZ + 0.24);
-    bannerFace.castShadow = false;
-    markFace(bannerFace, unit, "xbanner");
-    bannerFace.renderOrder = 3;
-    xbG.add(bannerFace);
-    unit.sideMeshes.xbanner = bannerFace;
-    if (unit.maps.xbanner && unit.texCache.xbanner) {
-      mats.xbanner.map = unit.texCache.xbanner;
-      mats.xbanner.needsUpdate = true;
-    }
-
-    const grommetMat = new THREE.MeshStandardMaterial({
-      color: 0xc5c5c5,
-      metalness: 0.82,
-      roughness: 0.22,
-    });
-    const gx = bw / 2 - 2.4;
-    const gy = bh / 2 - 2.4;
-    [
-      [-gx, gy],
-      [gx, gy],
-      [-gx, -gy],
-      [gx, -gy],
-    ].forEach(([dx, dy]) => {
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.18, 8, 16), grommetMat);
-      ring.position.set(bannerX + dx, bannerY + dy, bannerZ + 0.32);
-      xbG.add(ring);
-    });
+    const bannerX = popLeft - 12 - bw / 2;
+    const bannerX2 = bannerX - bw - 16;
+    addXBannerStand(unit, xbG, bannerX, "xbanner");
+    addXBannerStand(unit, xbG2, bannerX2, "xbanner2");
+    xbG2.visible = state.xbCount === 2;
 
     ["bodyFront", "bodyBack", "bodyLeft", "bodyRight"].forEach((key) => {
       if (unit.maps[key]) setMap(unit, key, unit.maps[key]);
@@ -1292,11 +1343,18 @@
     editorPanel.querySelector(".reset-pop").addEventListener("click", () => applyDefaultPop(selectedUnit()));
     editorPanel.querySelector(".reset-side").addEventListener("click", () => applyDefaultSidePop(selectedUnit()));
     editorPanel.querySelector(".reset-posters").addEventListener("click", () => applyDefaultSidePosters(selectedUnit()));
-    editorPanel.querySelector(".reset-xbanner").addEventListener("click", () => applyDefaultXBanner(selectedUnit()));
     editorPanel.querySelectorAll('input[name="screen"]').forEach((el) => {
       el.addEventListener("change", () => {
         if (el.checked) setScreen(el.value);
       });
+    });
+    editorPanel.querySelectorAll('input[name="xbanner"]').forEach((el) => {
+      el.addEventListener("change", () => {
+        if (el.checked) setXBanner(el.value);
+      });
+    });
+    editorPanel.querySelectorAll("[data-xb-count]").forEach((btn) => {
+      btn.addEventListener("click", () => setXbCount(Number(btn.dataset.xbCount)));
     });
     editorPanel.querySelectorAll("input[data-skip]").forEach((box) => {
       box.addEventListener("change", () => {
@@ -1369,12 +1427,13 @@
       applyDefaultBody(unit);
       applyDefaultSidePop(unit);
       applyDefaultSidePosters(unit);
-      applyDefaultXBanner(unit);
       buildPop(unit);
     });
     await Promise.all(units.map((unit) => applyDefaultPop(unit)));
+    await setXBanner(state.xbanner);
     setSelected(state.selected);
     applySkips();
+    setXbCount(state.xbCount, false);
     setCameraView("hero");
     if (isSolo) {
       document.body.classList.add("solo-preview");
@@ -1420,6 +1479,7 @@
       if (unit.attach.quote0) unit.attach.quote0.visible = !!flags.pay;
       if (unit.attach.quote1) unit.attach.quote1.visible = !!flags.howto;
       if (unit.attach.xbanner) unit.attach.xbanner.visible = !!flags.xb;
+      if (unit.attach.xbanner2) unit.attach.xbanner2.visible = !!flags.xb && state.xbCount === 2;
     });
     if (flags.view && views[flags.view]) setCameraView(flags.view);
     else if (flags.xb) controls.target.set(-12, 90, 0);
