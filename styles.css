@@ -164,7 +164,7 @@ body.solo-preview .stage-label {
 }
 
 .screen-picks {
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .screen-pick {
@@ -183,8 +183,9 @@ body.solo-preview .stage-label {
 
 .screen-pick img {
   width: 100%;
-  aspect-ratio: 9 / 16;
+  height: 118px;
   object-fit: cover;
+  object-position: top;
   border-radius: 10px;
   background: var(--slot);
   border: 1px dashed rgba(244, 239, 230, 0.18);
