@@ -232,11 +232,6 @@ body.solo-preview .stage-label {
   margin-top: 14px;
 }
 
-.side-pop-faces {
-  grid-template-columns: 132px 1fr;
-  align-items: start;
-}
-
 .slot-wrap {
   display: grid;
   gap: 6px;
@@ -279,7 +274,7 @@ body.solo-preview .stage-label {
 }
 
 .face-slot.portrait canvas {
-  aspect-ratio: 146 / 500;
+  aspect-ratio: 150 / 300;
 }
 
 .face-slot.xbanner canvas {

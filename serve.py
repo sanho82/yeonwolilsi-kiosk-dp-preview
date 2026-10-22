@@ -14,6 +14,7 @@ ALLOWED = {
         "left",
         "right",
         "sideLeft",
+        "sideRight",
         "posterLeft",
         "posterRight",
         "quote0",

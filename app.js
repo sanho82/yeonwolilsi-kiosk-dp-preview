@@ -1,5 +1,5 @@
 (() => {
-  const ASSET_V = "20261022h";
+  const ASSET_V = "20261022i";
   // JIODI JDK Phk / YMDT320. 1 unit = 1 cm.
   // Cabinet 610 × 1612 mm. Screen 744.4 mm sits under a short crown (handle + camera),
   // matching the product photos — CAD's 430 mm header was visually too tall.
@@ -24,10 +24,10 @@
     h: 40,
   };
   const SIDE_POP = {
-    pxW: 292,
-    pxH: 1000,
-    w: 14.6,
-    h: 50,
+    pxW: 512,
+    pxH: 1024,
+    w: 15,
+    h: 30,
     asset: "assets/side-left.png",
   };
   const SIDE_POSTER = {
@@ -112,6 +112,8 @@
     xbCount: 1,
     skip: {
       back: false,
+      sideLeft: false,
+      sideRight: false,
       posterLeft: false,
       posterRight: false,
     },
@@ -617,9 +619,13 @@
     return face === "posterLeft" || face === "posterRight";
   }
 
+  function isSideDisp(face) {
+    return face === "sideLeft" || face === "sideRight";
+  }
+
   function isCrisp(key) {
     return (
-      key === "sideLeft" ||
+      isSideDisp(key) ||
       key === "front" ||
       key === "back" ||
       key === "left" ||
@@ -923,7 +929,6 @@
     if (kioskLeft - popLeft < minOverhang) {
       popLeft = kioskLeft - minOverhang;
     }
-    const sideX = popLeft + sideW / 2;
     const sideY = screenY + screenH / 2 - sideH / 2;
     const popDepth = 1.4;
     const popZ = d / 2 + popDepth / 2 + 0.35;
@@ -959,27 +964,38 @@
       unit.attach[name] = g;
       return g;
     };
-    const sideG = addAttach("sideLeft");
-    const sideBoard = box(sideW, sideH, popDepth, ink);
-    sideBoard.position.set(sideX, sideY, popZ);
-    sideG.add(sideBoard);
-    mats.sideLeft = new THREE.MeshBasicMaterial({
-      map: unit.texCache.sideLeft || null,
-      polygonOffset: true,
-      polygonOffsetFactor: -1,
-      polygonOffsetUnits: -1,
+    [
+      ["sideLeft", -1],
+      ["sideRight", 1],
+    ].forEach(([key, side]) => {
+      let centerX = side * (screenW / 2 + gap + sideW / 2);
+      const kioskEdge = side * (w / 2);
+      const outerEdge = centerX + side * (sideW / 2);
+      if (side * (outerEdge - kioskEdge) < minOverhang) {
+        centerX = kioskEdge + side * (minOverhang - sideW / 2);
+      }
+      const g = addAttach(key);
+      const sideBoard = box(sideW, sideH, popDepth, ink);
+      sideBoard.position.set(centerX, sideY, popZ);
+      g.add(sideBoard);
+      mats[key] = new THREE.MeshBasicMaterial({
+        map: unit.texCache[key] || null,
+        polygonOffset: true,
+        polygonOffsetFactor: -1,
+        polygonOffsetUnits: -1,
+      });
+      const sideFace = new THREE.Mesh(new THREE.PlaneGeometry(sideW * 0.995, sideH * 0.995), mats[key]);
+      sideFace.position.set(centerX, sideY, popZ + popDepth / 2 + 0.04);
+      sideFace.castShadow = false;
+      markFace(sideFace, unit, key);
+      sideFace.renderOrder = 3;
+      g.add(sideFace);
+      unit.sideMeshes[key] = sideFace;
+      if (unit.maps[key] && unit.texCache[key]) {
+        mats[key].map = unit.texCache[key];
+        mats[key].needsUpdate = true;
+      }
     });
-    const sideFace = new THREE.Mesh(new THREE.PlaneGeometry(sideW * 0.995, sideH * 0.995), mats.sideLeft);
-    sideFace.position.set(sideX, sideY, popZ + popDepth / 2 + 0.04);
-    sideFace.castShadow = false;
-    markFace(sideFace, unit, "sideLeft");
-    sideFace.renderOrder = 3;
-    sideG.add(sideFace);
-    unit.sideMeshes.left = sideFace;
-    if (unit.maps.sideLeft && unit.texCache.sideLeft) {
-      mats.sideLeft.map = unit.texCache.sideLeft;
-      mats.sideLeft.needsUpdate = true;
-    }
 
     const postersG = addAttach("posters");
     const posterW = SIDE_POSTER.w;
@@ -1152,6 +1168,7 @@
 
   function applyDefaultSidePop(unit) {
     loadUnitFace(unit, "sideLeft", () => setMap(unit, "sideLeft", defaultSidePopArt()));
+    loadUnitFace(unit, "sideRight", () => setMap(unit, "sideRight", defaultSidePopArt()));
   }
 
   function applyDefaultSidePosters(unit) {
@@ -1175,7 +1192,7 @@
       const tw = 1800;
       return [tw, Math.max(2, Math.round(tw * (quote.h / quote.w)))];
     }
-    if (face === "sideLeft") {
+    if (isSideDisp(face)) {
       return [SIDE_POP.pxW, SIDE_POP.pxH];
     }
     if (isSidePoster(face)) {
@@ -1209,7 +1226,7 @@
   function applyPopImage(unit, face, img, persist = false) {
     if (face === "front" || face === "back") {
       setMap(unit, face, imageAsCanvas(img));
-    } else if (face === "sideLeft" || face === "xbanner" || quoteCard(face) || isSidePoster(face)) {
+    } else if (isSideDisp(face) || face === "xbanner" || quoteCard(face) || isSidePoster(face)) {
       setMap(unit, face, imageAsCanvas(img));
     } else {
       const [tw, th] = targetSize(unit, face);
@@ -1293,6 +1310,8 @@
     const unit = selectedUnit();
     if (!unit) return;
     if (unit.popMeshes.back) unit.popMeshes.back.visible = !state.skip.back;
+    if (unit.attach.sideLeft) unit.attach.sideLeft.visible = !state.skip.sideLeft;
+    if (unit.attach.sideRight) unit.attach.sideRight.visible = !state.skip.sideRight;
     if (unit.attach.posterLeft) unit.attach.posterLeft.visible = !state.skip.posterLeft;
     if (unit.attach.posterRight) unit.attach.posterRight.visible = !state.skip.posterRight;
     Object.keys(state.skip).forEach((key) => {
@@ -1483,7 +1502,8 @@
       if (!on) return;
       unit.popGroup.visible = flags.top > 0;
       if (unit.popMeshes.back) unit.popMeshes.back.visible = flags.top === 4;
-      if (unit.attach.sideLeft) unit.attach.sideLeft.visible = !!flags.disp;
+      if (unit.attach.sideLeft) unit.attach.sideLeft.visible = !!flags.disp && flags.sideLeft !== false;
+      if (unit.attach.sideRight) unit.attach.sideRight.visible = !!flags.disp && flags.sideRight !== false;
       if (unit.attach.posters) unit.attach.posters.visible = !!flags.side;
       if (unit.attach.posterLeft) unit.attach.posterLeft.visible = !!flags.side && flags.posterLeft !== false;
       if (unit.attach.posterRight) unit.attach.posterRight.visible = !!flags.side && flags.posterRight !== false;
