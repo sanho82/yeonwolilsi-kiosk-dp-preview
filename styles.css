@@ -300,7 +300,7 @@ body.solo-preview .stage-label {
 
 .face-slot[data-face="posterLeft"] canvas,
 .face-slot[data-face="posterRight"] canvas {
-  aspect-ratio: 38 / 50;
+  aspect-ratio: 450 / 366.5;
 }
 
 .face-slot.is-over canvas {
