@@ -1,5 +1,5 @@
 (() => {
-  const ASSET_V = "20261027b";
+  const ASSET_V = "20261027c";
   // JIODI JDK Phk / YMDT320. 1 unit = 1 cm.
   // Cabinet 610 × 1612 mm. Screen 744.4 mm sits under a short crown (handle + camera),
   // matching the product photos — CAD's 430 mm header was visually too tall.
@@ -29,7 +29,7 @@
     pxH: 430,
     w: 56,
     h: 20,
-    d: 1.2,
+    d: KIOSK.d,
     asset: `assets/ui/top-slim.jpg?v=${ASSET_V}`,
   };
   const SIDE_POP = {
@@ -123,6 +123,8 @@
     skip: {
       top: false,
       back: false,
+      left: false,
+      right: false,
       sideLeft: false,
       sideRight: false,
       posterLeft: false,
@@ -1102,29 +1104,23 @@
     const spec = topPopSpec();
     unit.pop = { w: spec.w, h: spec.h, d: spec.d };
     const { w, h, d } = unit.pop;
-    const slim = state.topPop === "slim";
-    const t = slim ? 0.35 : 0.7;
+    const t = 0.7;
     const y = KIOSK.baseH + KIOSK.h + h / 2 + 0.2;
 
     const board = new THREE.MeshStandardMaterial({
       color: 0x11110f,
       roughness: 0.55,
     });
-    const core = box(Math.max(0.4, w - t), Math.max(0.4, h - t), Math.max(0.4, d - t), board);
+    const core = box(w - t, h - t, d - t, board);
     core.position.y = y;
     unit.popGroup.add(core);
 
-    const faces = slim
-      ? [
-          ["front", w, h, [0, y, d / 2 + 0.02], [0, 0, 0]],
-          ["back", w, h, [0, y, -d / 2 - 0.02], [0, Math.PI, 0]],
-        ]
-      : [
-          ["front", w, h, [0, y, d / 2 + 0.02], [0, 0, 0]],
-          ["back", w, h, [0, y, -d / 2 - 0.02], [0, Math.PI, 0]],
-          ["right", d, h, [w / 2 + 0.02, y, 0], [0, Math.PI / 2, 0]],
-          ["left", d, h, [-w / 2 - 0.02, y, 0], [0, -Math.PI / 2, 0]],
-        ];
+    const faces = [
+      ["front", w, h, [0, y, d / 2 + 0.02], [0, 0, 0]],
+      ["back", w, h, [0, y, -d / 2 - 0.02], [0, Math.PI, 0]],
+      ["right", d, h, [w / 2 + 0.02, y, 0], [0, Math.PI / 2, 0]],
+      ["left", d, h, [-w / 2 - 0.02, y, 0], [0, -Math.PI / 2, 0]],
+    ];
 
     faces.forEach(([face, fw, fh, pos, rot]) => {
       unit.mats[face] = new THREE.MeshBasicMaterial({
@@ -1139,11 +1135,9 @@
       unit.popMeshes[face] = mesh;
     });
 
-    if (!slim) {
-      const lid = box(w, t, d, board, false);
-      lid.position.y = y + h / 2 - t / 2;
-      unit.popGroup.add(lid);
-    }
+    const lid = box(w, t, d, board, false);
+    lid.position.y = y + h / 2 - t / 2;
+    unit.popGroup.add(lid);
 
     Object.keys(unit.popMeshes).forEach((face) => {
       if (unit.maps[face] && unit.texCache[face]) {
@@ -1158,12 +1152,17 @@
       const img = new Image();
       img.onload = () => {
         applyPopImage(unit, "front", img);
-        applyPopImage(unit, "back", img);
+        ["back", "left", "right"].forEach((face) => {
+          const wmm = face === "left" || face === "right" ? unit.pop.d * 10 : unit.pop.w * 10;
+          setMap(unit, face, defaultPopArt(face, wmm, unit.pop.h * 10));
+        });
         resolve();
       };
       img.onerror = () => {
-        setMap(unit, "front", defaultPopArt("front", unit.pop.w * 10, unit.pop.h * 10));
-        setMap(unit, "back", defaultPopArt("back", unit.pop.w * 10, unit.pop.h * 10));
+        ["front", "back", "left", "right"].forEach((face) => {
+          const wmm = face === "left" || face === "right" ? unit.pop.d * 10 : unit.pop.w * 10;
+          setMap(unit, face, defaultPopArt(face, wmm, unit.pop.h * 10));
+        });
         resolve();
       };
       img.src = TOP_POP_SLIM.asset;
@@ -1373,6 +1372,8 @@
     if (!unit) return;
     if (unit.popGroup) unit.popGroup.visible = !state.skip.top;
     if (unit.popMeshes.back) unit.popMeshes.back.visible = !state.skip.top && !state.skip.back;
+    if (unit.popMeshes.left) unit.popMeshes.left.visible = !state.skip.top && !state.skip.left;
+    if (unit.popMeshes.right) unit.popMeshes.right.visible = !state.skip.top && !state.skip.right;
     if (unit.attach.sideLeft) unit.attach.sideLeft.visible = !state.skip.sideLeft;
     if (unit.attach.sideRight) unit.attach.sideRight.visible = !state.skip.sideRight;
     if (unit.attach.posterLeft) unit.attach.posterLeft.visible = !state.skip.posterLeft;

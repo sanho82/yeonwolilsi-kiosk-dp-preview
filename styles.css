@@ -218,13 +218,14 @@ body.solo-preview .stage-label {
   margin: 0 0 12px;
 }
 
-body.top-pop-slim .face-slot[data-face="left"],
-body.top-pop-slim .face-slot[data-face="right"] {
-  display: none;
+body.top-pop-slim .pop-faces .face-slot[data-face="front"] canvas,
+body.top-pop-slim .pop-faces .face-slot[data-face="back"] canvas {
+  aspect-ratio: 56 / 20;
 }
 
-body.top-pop-slim .pop-faces .face-slot canvas {
-  aspect-ratio: 56 / 20;
+body.top-pop-slim .pop-faces .face-slot[data-face="left"] canvas,
+body.top-pop-slim .pop-faces .face-slot[data-face="right"] canvas {
+  aspect-ratio: 65 / 20;
 }
 
 .xb-label {
