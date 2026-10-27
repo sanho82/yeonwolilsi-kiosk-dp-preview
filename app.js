@@ -1,5 +1,5 @@
 (() => {
-  const ASSET_V = "20261027c";
+  const ASSET_V = "20261027d";
   // JIODI JDK Phk / YMDT320. 1 unit = 1 cm.
   // Cabinet 610 × 1612 mm. Screen 744.4 mm sits under a short crown (handle + camera),
   // matching the product photos — CAD's 430 mm header was visually too tall.
@@ -1151,11 +1151,7 @@
     return new Promise((resolve) => {
       const img = new Image();
       img.onload = () => {
-        applyPopImage(unit, "front", img);
-        ["back", "left", "right"].forEach((face) => {
-          const wmm = face === "left" || face === "right" ? unit.pop.d * 10 : unit.pop.w * 10;
-          setMap(unit, face, defaultPopArt(face, wmm, unit.pop.h * 10));
-        });
+        ["front", "back", "left", "right"].forEach((face) => applyPopImage(unit, face, img));
         resolve();
       };
       img.onerror = () => {
