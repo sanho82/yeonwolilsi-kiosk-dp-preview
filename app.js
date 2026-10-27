@@ -1,5 +1,5 @@
 (() => {
-  const ASSET_V = "20261027d";
+  const ASSET_V = "20261027e";
   // JIODI JDK Phk / YMDT320. 1 unit = 1 cm.
   // Cabinet 610 × 1612 mm. Screen 744.4 mm sits under a short crown (handle + camera),
   // matching the product photos — CAD's 430 mm header was visually too tall.
@@ -792,6 +792,7 @@
       texCache: {},
       maps: {},
       popMeshes: {},
+      popBoards: {},
       sideMeshes: {},
       attach: {},
       pop: { w: TOP_POP.w, h: TOP_POP.h, d: TOP_POP.d },
@@ -1101,6 +1102,7 @@
   function buildPop(unit) {
     clearGroup(unit.popGroup);
     unit.popMeshes = {};
+    unit.popBoards = {};
     const spec = topPopSpec();
     unit.pop = { w: spec.w, h: spec.h, d: spec.d };
     const { w, h, d } = unit.pop;
@@ -1111,9 +1113,17 @@
       color: 0x11110f,
       roughness: 0.55,
     });
-    const core = box(w - t, h - t, d - t, board);
-    core.position.y = y;
-    unit.popGroup.add(core);
+    [
+      ["front", w, h, t, [0, y, d / 2 - t / 2]],
+      ["back", w, h, t, [0, y, -d / 2 + t / 2]],
+      ["right", t, h, d, [w / 2 - t / 2, y, 0]],
+      ["left", t, h, d, [-w / 2 + t / 2, y, 0]],
+    ].forEach(([face, bw, bh, bd, pos]) => {
+      const panel = box(bw, bh, bd, board);
+      panel.position.set(...pos);
+      unit.popGroup.add(panel);
+      unit.popBoards[face] = panel;
+    });
 
     const faces = [
       ["front", w, h, [0, y, d / 2 + 0.02], [0, 0, 0]],
@@ -1363,13 +1373,18 @@
     renderer.render(scene, orbitCam);
   }
 
+  function setPopFaceVisible(unit, face, on) {
+    if (unit.popMeshes[face]) unit.popMeshes[face].visible = on;
+    if (unit.popBoards && unit.popBoards[face]) unit.popBoards[face].visible = on;
+  }
+
   function applySkips() {
     const unit = selectedUnit();
     if (!unit) return;
     if (unit.popGroup) unit.popGroup.visible = !state.skip.top;
-    if (unit.popMeshes.back) unit.popMeshes.back.visible = !state.skip.top && !state.skip.back;
-    if (unit.popMeshes.left) unit.popMeshes.left.visible = !state.skip.top && !state.skip.left;
-    if (unit.popMeshes.right) unit.popMeshes.right.visible = !state.skip.top && !state.skip.right;
+    setPopFaceVisible(unit, "back", !state.skip.top && !state.skip.back);
+    setPopFaceVisible(unit, "left", !state.skip.top && !state.skip.left);
+    setPopFaceVisible(unit, "right", !state.skip.top && !state.skip.right);
     if (unit.attach.sideLeft) unit.attach.sideLeft.visible = !state.skip.sideLeft;
     if (unit.attach.sideRight) unit.attach.sideRight.visible = !state.skip.sideRight;
     if (unit.attach.posterLeft) unit.attach.posterLeft.visible = !state.skip.posterLeft;
@@ -1568,7 +1583,7 @@
       unit.group.position.x = on ? 0 : UNIT_X[unit.id];
       if (!on) return;
       unit.popGroup.visible = flags.top > 0;
-      if (unit.popMeshes.back) unit.popMeshes.back.visible = flags.top === 4;
+      setPopFaceVisible(unit, "back", flags.top === 4);
       if (unit.attach.sideLeft) unit.attach.sideLeft.visible = !!flags.disp && flags.sideLeft !== false;
       if (unit.attach.sideRight) unit.attach.sideRight.visible = !!flags.disp && flags.sideRight !== false;
       if (unit.attach.posters) unit.attach.posters.visible = !!flags.side;
