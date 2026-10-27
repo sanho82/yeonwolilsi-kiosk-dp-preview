@@ -247,7 +247,8 @@ body.solo-preview .stage-label {
   cursor: pointer;
 }
 
-.slot-wrap.is-off .face-slot {
+.slot-wrap.is-off .face-slot,
+.skip-block.is-off {
   opacity: 0.38;
   pointer-events: none;
 }

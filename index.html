@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261022i" />
+  <link rel="stylesheet" href="styles.css?v=20261027a" />
 </head>
 <body>
   <div id="app">
@@ -46,8 +46,12 @@
       </section>
 
       <section class="block">
-        <div class="block-title">상단 POP</div>
-        <p class="hint">실물 <b>600 × 400 mm</b> (3:2). 도안은 같은 비율이면 됩니다. 예: <b>1,200 × 800 px</b>. 후면은 생략할 수 있습니다.</p>
+        <div class="block-title">
+          상단 POP
+          <label class="skip-opt"><input type="checkbox" data-skip="top" />✕ 설치 안 함</label>
+        </div>
+        <div class="skip-block" data-skip-wrap="top">
+        <p class="hint">실물 <b>600 × 400 mm</b> (3:2). 도안은 같은 비율이면 됩니다. 예: <b>1,200 × 800 px</b>. 후면은 따로 생략할 수 있습니다.</p>
         <div class="faces pop-faces">
           <label class="face-slot" data-face="front">
             <input type="file" accept="image/*" hidden />
@@ -80,6 +84,7 @@
         <div class="btn-row">
           <button type="button" class="ghost copy-front">앞면 → 4면 복제</button>
           <button type="button" class="ghost reset-pop">기본 도안</button>
+        </div>
         </div>
       </section>
 
@@ -150,17 +155,17 @@
         <div class="faces xb-picks">
           <label class="screen-pick">
             <input type="radio" name="xbanner" value="x1" checked />
-            <img src="assets/ui/xb-1.jpg?v=20261022i" alt="오늘의 나" />
+            <img src="assets/ui/xb-1.jpg?v=20261027a" alt="오늘의 나" />
             <em>1. 오늘의 나</em>
           </label>
           <label class="screen-pick">
             <input type="radio" name="xbanner" value="x2" />
-            <img src="assets/ui/xb-2.jpg?v=20261022i" alt="내 행운" />
+            <img src="assets/ui/xb-2.jpg?v=20261027a" alt="내 행운" />
             <em>2. 내 행운</em>
           </label>
           <label class="screen-pick">
             <input type="radio" name="xbanner" value="x3" />
-            <img src="assets/ui/xb-3.jpg?v=20261022i" alt="여하간 운" />
+            <img src="assets/ui/xb-3.jpg?v=20261027a" alt="여하간 운" />
             <em>3. 여하간 운</em>
           </label>
         </div>
@@ -169,17 +174,17 @@
           <div class="faces xb-picks">
             <label class="screen-pick">
               <input type="radio" name="xbanner2" value="x1" />
-              <img src="assets/ui/xb-1.jpg?v=20261022i" alt="오늘의 나" />
+              <img src="assets/ui/xb-1.jpg?v=20261027a" alt="오늘의 나" />
               <em>1. 오늘의 나</em>
             </label>
             <label class="screen-pick">
               <input type="radio" name="xbanner2" value="x2" checked />
-              <img src="assets/ui/xb-2.jpg?v=20261022i" alt="내 행운" />
+              <img src="assets/ui/xb-2.jpg?v=20261027a" alt="내 행운" />
               <em>2. 내 행운</em>
             </label>
             <label class="screen-pick">
               <input type="radio" name="xbanner2" value="x3" />
-              <img src="assets/ui/xb-3.jpg?v=20261022i" alt="여하간 운" />
+              <img src="assets/ui/xb-3.jpg?v=20261027a" alt="여하간 운" />
               <em>3. 여하간 운</em>
             </label>
           </div>
@@ -220,6 +225,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="app.js?v=20261022i"></script>
+  <script src="app.js?v=20261027a"></script>
 </body>
 </html>
