@@ -213,8 +213,18 @@ body.solo-preview .stage-label {
   object-position: top;
 }
 
-#xbCount {
+#xbCount,
+#topPopType {
   margin: 0 0 12px;
+}
+
+body.top-pop-slim .face-slot[data-face="left"],
+body.top-pop-slim .face-slot[data-face="right"] {
+  display: none;
+}
+
+body.top-pop-slim .pop-faces .face-slot canvas {
+  aspect-ratio: 56 / 20;
 }
 
 .xb-label {

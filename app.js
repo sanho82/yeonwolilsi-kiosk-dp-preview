@@ -1,5 +1,5 @@
 (() => {
-  const ASSET_V = "20261027a";
+  const ASSET_V = "20261027b";
   // JIODI JDK Phk / YMDT320. 1 unit = 1 cm.
   // Cabinet 610 × 1612 mm. Screen 744.4 mm sits under a short crown (handle + camera),
   // matching the product photos — CAD's 430 mm header was visually too tall.
@@ -22,6 +22,15 @@
     pxH: 800,
     w: 60,
     h: 40,
+    d: KIOSK.d,
+  };
+  const TOP_POP_SLIM = {
+    pxW: 1200,
+    pxH: 430,
+    w: 56,
+    h: 20,
+    d: 1.2,
+    asset: `assets/ui/top-slim.jpg?v=${ASSET_V}`,
   };
   const SIDE_POP = {
     pxW: 512,
@@ -110,6 +119,7 @@
     xbanner: "x1",
     xbanner2: "x2",
     xbCount: 1,
+    topPop: "box",
     skip: {
       top: false,
       back: false,
@@ -782,7 +792,7 @@
       popMeshes: {},
       sideMeshes: {},
       attach: {},
-      pop: { w: TOP_POP.w, h: TOP_POP.h, d: KIOSK.d },
+      pop: { w: TOP_POP.w, h: TOP_POP.h, d: TOP_POP.d },
     };
   }
 
@@ -1082,26 +1092,39 @@
     });
   }
 
+  function topPopSpec() {
+    return state.topPop === "slim" ? TOP_POP_SLIM : TOP_POP;
+  }
+
   function buildPop(unit) {
     clearGroup(unit.popGroup);
+    unit.popMeshes = {};
+    const spec = topPopSpec();
+    unit.pop = { w: spec.w, h: spec.h, d: spec.d };
     const { w, h, d } = unit.pop;
-    const t = 0.7;
+    const slim = state.topPop === "slim";
+    const t = slim ? 0.35 : 0.7;
     const y = KIOSK.baseH + KIOSK.h + h / 2 + 0.2;
 
     const board = new THREE.MeshStandardMaterial({
       color: 0x11110f,
       roughness: 0.55,
     });
-    const core = box(w - t, h - t, d - t, board);
+    const core = box(Math.max(0.4, w - t), Math.max(0.4, h - t), Math.max(0.4, d - t), board);
     core.position.y = y;
     unit.popGroup.add(core);
 
-    const faces = [
-      ["front", w, h, [0, y, d / 2 + 0.02], [0, 0, 0]],
-      ["back", w, h, [0, y, -d / 2 - 0.02], [0, Math.PI, 0]],
-      ["right", d, h, [w / 2 + 0.02, y, 0], [0, Math.PI / 2, 0]],
-      ["left", d, h, [-w / 2 - 0.02, y, 0], [0, -Math.PI / 2, 0]],
-    ];
+    const faces = slim
+      ? [
+          ["front", w, h, [0, y, d / 2 + 0.02], [0, 0, 0]],
+          ["back", w, h, [0, y, -d / 2 - 0.02], [0, Math.PI, 0]],
+        ]
+      : [
+          ["front", w, h, [0, y, d / 2 + 0.02], [0, 0, 0]],
+          ["back", w, h, [0, y, -d / 2 - 0.02], [0, Math.PI, 0]],
+          ["right", d, h, [w / 2 + 0.02, y, 0], [0, Math.PI / 2, 0]],
+          ["left", d, h, [-w / 2 - 0.02, y, 0], [0, -Math.PI / 2, 0]],
+        ];
 
     faces.forEach(([face, fw, fh, pos, rot]) => {
       unit.mats[face] = new THREE.MeshBasicMaterial({
@@ -1116,9 +1139,11 @@
       unit.popMeshes[face] = mesh;
     });
 
-    const lid = box(w, t, d, board, false);
-    lid.position.y = y + h / 2 - t / 2;
-    unit.popGroup.add(lid);
+    if (!slim) {
+      const lid = box(w, t, d, board, false);
+      lid.position.y = y + h / 2 - t / 2;
+      unit.popGroup.add(lid);
+    }
 
     Object.keys(unit.popMeshes).forEach((face) => {
       if (unit.maps[face] && unit.texCache[face]) {
@@ -1126,6 +1151,42 @@
         unit.mats[face].needsUpdate = true;
       }
     });
+  }
+
+  function applySlimPop(unit) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        applyPopImage(unit, "front", img);
+        applyPopImage(unit, "back", img);
+        resolve();
+      };
+      img.onerror = () => {
+        setMap(unit, "front", defaultPopArt("front", unit.pop.w * 10, unit.pop.h * 10));
+        setMap(unit, "back", defaultPopArt("back", unit.pop.w * 10, unit.pop.h * 10));
+        resolve();
+      };
+      img.src = TOP_POP_SLIM.asset;
+    });
+  }
+
+  async function setTopPop(type) {
+    state.topPop = type === "slim" ? "slim" : "box";
+    const slim = state.topPop === "slim";
+    document.querySelectorAll("[data-top-pop]").forEach((btn) => {
+      btn.classList.toggle("is-on", btn.dataset.topPop === state.topPop);
+    });
+    const hintBox = document.getElementById("topPopHintBox");
+    const hintSlim = document.getElementById("topPopHintSlim");
+    if (hintBox) hintBox.hidden = slim;
+    if (hintSlim) hintSlim.hidden = !slim;
+    document.body.classList.toggle("top-pop-slim", slim);
+    units.forEach((unit) => buildPop(unit));
+    await Promise.all(
+      units.map((unit) => (slim ? applySlimPop(unit) : applyDefaultPop(unit)))
+    );
+    refreshPanelPreviews(selectedUnit());
+    applySkips();
   }
 
   function applyDefaultPop(unit) {
@@ -1366,7 +1427,14 @@
         persistFace(unit, k);
       });
     });
-    editorPanel.querySelector(".reset-pop").addEventListener("click", () => applyDefaultPop(selectedUnit()));
+    editorPanel.querySelector(".reset-pop").addEventListener("click", () => {
+      const unit = selectedUnit();
+      if (state.topPop === "slim") applySlimPop(unit);
+      else applyDefaultPop(unit);
+    });
+    editorPanel.querySelectorAll("[data-top-pop]").forEach((btn) => {
+      btn.addEventListener("click", () => setTopPop(btn.dataset.topPop));
+    });
     editorPanel.querySelector(".reset-side").addEventListener("click", () => applyDefaultSidePop(selectedUnit()));
     editorPanel.querySelector(".reset-posters").addEventListener("click", () => applyDefaultSidePosters(selectedUnit()));
     editorPanel.querySelectorAll('input[name="screen"]').forEach((el) => {
